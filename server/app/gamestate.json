@@ -1,0 +1,306 @@
+{
+  "batalhas_ativas": [
+    {
+      "id": 1,
+      "treinador_id": 1,
+      "pokemon_em_campo_id_captura": 1,
+      "oponente": {
+        "pokedex_id": 247,
+        "nome": "Pupitar",
+        "nivel": 30,
+        "hp_max": 143,
+        "hp_atual": 143,
+        "ataque": 142
+      },
+      "log_batalha": [
+        "Um Pupitar selvagem apareceu!"
+      ]
+    },
+    {
+      "id": 2,
+      "treinador_id": 2,
+      "pokemon_em_campo_id_captura": 2,
+      "oponente": {
+        "pokedex_id": 22,
+        "nome": "Fearow",
+        "nivel": 20,
+        "hp_max": 104,
+        "hp_atual": 104,
+        "ataque": 122
+      },
+      "log_batalha": [
+        "Um Fearow selvagem apareceu!"
+      ]
+    },
+    {
+      "id": 3,
+      "treinador_id": 3,
+      "pokemon_em_campo_id_captura": 3,
+      "oponente": {
+        "pokedex_id": 148,
+        "nome": "Dragonair",
+        "nivel": 30,
+        "hp_max": 132,
+        "hp_atual": 132,
+        "ataque": 142
+      },
+      "log_batalha": [
+        "Um Dragonair selvagem apareceu!"
+      ]
+    },
+    {
+      "id": 4,
+      "treinador_id": 5,
+      "pokemon_em_campo_id_captura": 5,
+      "oponente": {
+        "pokedex_id": 172,
+        "nome": "Pichu",
+        "nivel": 20,
+        "hp_max": 55,
+        "hp_atual": 55,
+        "ataque": 66
+      },
+      "log_batalha": [
+        "Um Pichu selvagem apareceu!"
+      ]
+    },
+    {
+      "id": 5,
+      "treinador_id": 6,
+      "pokemon_em_campo_id_captura": 6,
+      "oponente": {
+        "pokedex_id": 15,
+        "nome": "Beedrill",
+        "nivel": 30,
+        "hp_max": 121,
+        "hp_atual": 0,
+        "ataque": 132
+      },
+      "log_batalha": [
+        "Um Beedrill selvagem apareceu!",
+        "Froakie ataca e causa 17 de dano!",
+        "O Beedrill contra-ataca e causa 34 de dano!",
+        "Froakie ataca e causa 23 de dano!",
+        "O Beedrill contra-ataca e causa 30 de dano!",
+        "Froakie ataca e causa 19 de dano!",
+        "O Beedrill contra-ataca e causa 33 de dano!",
+        "Seu Froakie desmaiou! Você foi derrotado!",
+        "Froakie ataca e causa 20 de dano!",
+        "O Beedrill contra-ataca e causa 36 de dano!",
+        "Seu Froakie desmaiou! Você foi derrotado!",
+        "Froakie ataca e causa 20 de dano!",
+        "O Beedrill contra-ataca e causa 30 de dano!",
+        "Seu Froakie desmaiou! Você foi derrotado!",
+        "Froakie ataca e causa 21 de dano!",
+        "O Beedrill contra-ataca e causa 34 de dano!",
+        "Seu Froakie desmaiou! Você foi derrotado!",
+        "Froakie ataca e causa 21 de dano!",
+        "O Beedrill selvagem desmaiou! Você venceu a batalha!"
+      ]
+    },
+    {
+      "id": 6,
+      "treinador_id": 6,
+      "pokemon_em_campo_id_captura": 6,
+      "oponente": {
+        "pokedex_id": 133,
+        "nome": "Eevee",
+        "nivel": 20,
+        "hp_max": 106,
+        "hp_atual": 22,
+        "ataque": 93
+      },
+      "log_batalha": [
+        "Um Eevee selvagem apareceu!",
+        "Froakie ataca e causa 21 de dano!",
+        "O Eevee contra-ataca e causa 26 de dano!",
+        "Seu Froakie desmaiou! Você foi derrotado!",
+        "Froakie ataca e causa 22 de dano!",
+        "O Eevee contra-ataca e causa 20 de dano!",
+        "Seu Froakie desmaiou! Você foi derrotado!",
+        "Froakie ataca e causa 22 de dano!",
+        "O Eevee contra-ataca e causa 22 de dano!",
+        "Seu Froakie desmaiou! Você foi derrotado!",
+        "Froakie ataca e causa 19 de dano!",
+        "O Eevee contra-ataca e causa 21 de dano!",
+        "Seu Froakie desmaiou! Você foi derrotado!"
+      ]
+    },
+    {
+      "id": 7,
+      "treinador_id": 7,
+      "pokemon_em_campo_id_captura": 7,
+      "oponente": {
+        "pokedex_id": 498,
+        "nome": "Tepig",
+        "nivel": 6,
+        "hp_max": 92,
+        "hp_atual": 92,
+        "ataque": 86
+      },
+      "log_batalha": [
+        "Um Tepig selvagem (Nível 6) apareceu!"
+      ]
+    },
+    {
+      "id": 8,
+      "treinador_id": 8,
+      "pokemon_em_campo_id_captura": 8,
+      "oponente": {
+        "pokedex_id": 152,
+        "nome": "Chikorita",
+        "nivel": 6,
+        "hp_max": 67,
+        "hp_atual": 67,
+        "ataque": 68
+      },
+      "log_batalha": [
+        "Um Chikorita selvagem (Nível 6) apareceu!"
+      ]
+    },
+    {
+      "id": 9,
+      "treinador_id": 9,
+      "pokemon_em_campo_id_captura": 9,
+      "oponente": {
+        "pokedex_id": 67,
+        "nome": "Machoke",
+        "nivel": 15,
+        "hp_max": 102,
+        "hp_atual": 102,
+        "ataque": 115
+      },
+      "log_batalha": [
+        "Um Machoke selvagem (Nível 15) apareceu!"
+      ]
+    }
+  ],
+  "treinadores": [
+    {
+      "id": 1,
+      "nome": "Cesar",
+      "pc": [
+        {
+          "id_captura": 1,
+          "pokedex_id": 656,
+          "nome": "Froakie",
+          "nivel": 10,
+          "hp": 70,
+          "ataque": 82
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "nome": "tteste",
+      "pc": [
+        {
+          "id_captura": 2,
+          "pokedex_id": 4,
+          "nome": "Charmander",
+          "nivel": 10,
+          "hp": 67,
+          "ataque": 77
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "nome": "teste",
+      "pc": [
+        {
+          "id_captura": 3,
+          "pokedex_id": 4,
+          "nome": "Charmander",
+          "nivel": 10,
+          "hp": 67,
+          "ataque": 77
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "nome": "a",
+      "pc": [
+        {
+          "id_captura": 4,
+          "pokedex_id": 152,
+          "nome": "Chikorita",
+          "nivel": 10,
+          "hp": 75,
+          "ataque": 73
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "nome": "b",
+      "pc": [
+        {
+          "id_captura": 5,
+          "pokedex_id": 387,
+          "nome": "Turtwig",
+          "nivel": 10,
+          "hp": 87,
+          "ataque": 97
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "nome": "123",
+      "pc": [
+        {
+          "id_captura": 6,
+          "pokedex_id": 656,
+          "nome": "Froakie",
+          "nivel": 10,
+          "hp": 0,
+          "ataque": 82
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "nome": "asd",
+      "pc": [
+        {
+          "id_captura": 7,
+          "pokedex_id": 7,
+          "nome": "Squirtle",
+          "nivel": 10,
+          "hp": 73,
+          "ataque": 72
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "nome": "bgf",
+      "pc": [
+        {
+          "id_captura": 8,
+          "pokedex_id": 252,
+          "nome": "Treecko",
+          "nivel": 10,
+          "hp": 68,
+          "ataque": 68
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "nome": "yt",
+      "pc": [
+        {
+          "id_captura": 9,
+          "pokedex_id": 387,
+          "nome": "Turtwig",
+          "nivel": 10,
+          "hp": 87,
+          "ataque": 97
+        }
+      ]
+    }
+  ]
+}
