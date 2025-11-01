@@ -47,8 +47,8 @@ Este projeto foi desenhado para ser executado com um único comando, simplifican
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [URL_DO_SEU_REPOSITORIO]
-    cd [NOME_DO_SEU_PROJETO]
+    git clone [https://github.com/LuisRouth/Mini-Projeto-ConsumoAPI.git]
+    cd [Mini-Projeto-ConsumoAPI]
     ```
 
 2.  **Crie e ative um ambiente virtual:**
