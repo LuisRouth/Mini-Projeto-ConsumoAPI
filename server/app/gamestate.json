@@ -3,31 +3,8 @@
   "treinadores": [
     {
       "id": 1,
-      "nome": "f",
-      "equipe": [
-        {
-          "id_captura": 1,
-          "pokedex_id": 5,
-          "nome": "Charmeleon",
-          "nivel": 21,
-          "hp_max": 125,
-          "hp": 101,
-          "ataque": 118,
-          "xp_atual": 583,
-          "xp_para_upar": 591
-        },
-        {
-          "id_captura": 2,
-          "pokedex_id": 28,
-          "nome": "Sandslash",
-          "nivel": 13,
-          "hp_max": 103,
-          "hp": 103,
-          "ataque": 124,
-          "xp_atual": 84,
-          "xp_para_upar": 152
-        }
-      ],
+      "nome": "a",
+      "equipe": [],
       "pc": [
         null,
         null,

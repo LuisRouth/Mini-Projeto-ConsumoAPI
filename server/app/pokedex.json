@@ -1,5 +1,5 @@
 [
-  { "id": 1, "nome": "Bulbasaur", "tipagem": ["Grama", "Veneno"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 45, "ataque": 49 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 2 } },
+  { "id": 1, "nome": "Bulbasaur", "tipagem": ["Grama"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 45, "ataque": 49 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 2 } },
   { "id": 2, "nome": "Ivysaur", "tipagem": ["Grama", "Veneno"], "raridade": "Muito Raro", "stats_base": { "hp": 60, "ataque": 62 }, "evolucao": { "nivel_evolucao": 32, "evolui_para_id": 3 } },
   { "id": 3, "nome": "Venusaur", "tipagem": ["Grama", "Veneno"], "raridade": "Muito Raro", "stats_base": { "hp": 80, "ataque": 82 }, "evolucao": null },
   { "id": 4, "nome": "Charmander", "tipagem": ["Fogo"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 39, "ataque": 52 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 5 } },
@@ -144,7 +144,33 @@
   { "id": 729, "nome": "Brionne", "tipagem": ["Água"], "raridade": "Muito Raro", "stats_base": { "hp": 60, "ataque": 69 }, "evolucao": { "nivel_evolucao": 34, "evolui_para_id": 730 } },
   { "id": 730, "nome": "Primarina", "tipagem": ["Água", "Fada"], "raridade": "Muito Raro", "stats_base": { "hp": 80, "ataque": 74 }, "evolucao": null },
 
+
+  
+  { "id": 810, "nome": "Grookey", "tipagem": ["Grama"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 50, "ataque": 65 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 811 } },
+  { "id": 811, "nome": "Thwackey", "tipagem": ["Grama"], "raridade": "Muito Raro", "stats_base": { "hp": 70, "ataque": 85 }, "evolucao": { "nivel_evolucao": 35, "evolui_para_id": 812 } },
+  { "id": 812, "nome": "Rillaboom", "tipagem": ["Grama"], "raridade": "Muito Raro", "stats_base": { "hp": 100, "ataque": 125 }, "evolucao": null },
+  { "id": 813, "nome": "Scorbunny", "tipagem": ["Fogo"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 50, "ataque": 71 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 814 } },
+  { "id": 814, "nome": "Raboot", "tipagem": ["Fogo"], "raridade": "Muito Raro", "stats_base": { "hp": 65, "ataque": 86 }, "evolucao": { "nivel_evolucao": 35, "evolui_para_id": 815 } },
+  { "id": 815, "nome": "Cinderace", "tipagem": ["Fogo"], "raridade": "Muito Raro", "stats_base": { "hp": 80, "ataque": 116 }, "evolucao": null },
+  { "id": 816, "nome": "Sobble", "tipagem": ["Água"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 50, "ataque": 40 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 817 } },
+  { "id": 817, "nome": "Drizzile", "tipagem": ["Água"], "raridade": "Muito Raro", "stats_base": { "hp": 65, "ataque": 60 }, "evolucao": { "nivel_evolucao": 35, "evolui_para_id": 818 } },
+  { "id": 818, "nome": "Inteleon", "tipagem": ["Água"], "raridade": "Muito Raro", "stats_base": { "hp": 70, "ataque": 85 }, "evolucao": null },
+
   { "id": 885, "nome": "Dreepy", "tipagem": ["Dragão", "Fantasma"], "raridade": "Raro", "stats_base": { "hp": 28, "ataque": 65 }, "evolucao": { "nivel_evolucao": 50, "evolui_para_id": 886 } },
   { "id": 886, "nome": "Drakloak", "tipagem": ["Dragão", "Fantasma"], "raridade": "Raro", "stats_base": { "hp": 68, "ataque": 80 }, "evolucao": { "nivel_evolucao": 60, "evolui_para_id": 887 } },
-  { "id": 887, "nome": "Dragapult", "tipagem": ["Dragão", "Fantasma"], "raridade": "Muito Raro", "stats_base": { "hp": 88, "ataque": 120 }, "evolucao": null }
-]
+  { "id": 887, "nome": "Dragapult", "tipagem": ["Dragão", "Fantasma"], "raridade": "Muito Raro", "stats_base": { "hp": 88, "ataque": 120 }, "evolucao": null },
+
+
+
+
+  { "id": 906, "nome": "Sprigatito", "tipagem": ["Grama"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 40, "ataque": 61 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 907 } },
+  { "id": 907, "nome": "Floragato", "tipagem": ["Grama"], "raridade": "Muito Raro", "stats_base": { "hp": 61, "ataque": 80 }, "evolucao": { "nivel_evolucao": 36, "evolui_para_id": 908 } },
+  { "id": 908, "nome": "Meowscarada", "tipagem": ["Grama", "Sombrio"], "raridade": "Muito Raro", "stats_base": { "hp": 76, "ataque": 110 }, "evolucao": null },
+  { "id": 909, "nome": "Fuecoco", "tipagem": ["Fogo"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 67, "ataque": 45 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 910 } },
+  { "id": 910, "nome": "Crocalor", "tipagem": ["Fogo"], "raridade": "Muito Raro", "stats_base": { "hp": 81, "ataque": 55 }, "evolucao": { "nivel_evolucao": 36, "evolui_para_id": 911 } },
+  { "id": 911, "nome": "Skeledirge", "tipagem": ["Fogo", "Fantasma"], "raridade": "Muito Raro", "stats_base": { "hp": 104, "ataque": 75 }, "evolucao": null },
+  { "id": 912, "nome": "Quaxly", "tipagem": ["Água"], "raridade": "Raro", "is_inicial": true, "stats_base": { "hp": 55, "ataque": 65 }, "evolucao": { "nivel_evolucao": 16, "evolui_para_id": 913 } },
+  { "id": 913, "nome": "Quaxwell", "tipagem": ["Água"], "raridade": "Muito Raro", "stats_base": { "hp": 70, "ataque": 85 }, "evolucao": { "nivel_evolucao": 36, "evolui_para_id": 914 } },
+  { "id": 914, "nome": "Quaquaval", "tipagem": ["Água", "Lutador"], "raridade": "Muito Raro", "stats_base": { "hp": 85, "ataque": 120 }, "evolucao": null }
+] 
+
