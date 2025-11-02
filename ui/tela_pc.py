@@ -1,97 +1,78 @@
-import tkinter as tk
+import customtkinter as ctk
+from ui.ctk_messagebox import CTkMessageBox
+from PIL import Image, ImageTk
+import requests
+import io
 
-class TelaPC(tk.Toplevel):
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+class TelaPC(ctk.CTkToplevel):
     def __init__(self, master, controller):
         super().__init__(master)
         self.controller = controller
         self.title("PC de Pokémon")
         self.attributes('-fullscreen', True)
-        self.bind('<Escape>', self.fechar)
         self.protocol("WM_DELETE_WINDOW", self.fechar)
         self.transient(master)
         self.grab_set()
 
-        # --- ESTRUTURA VISUAL ---
-        self.feedback_label = tk.Label(self, text="Selecione um Pokémon", font=("Arial", 14))
-        self.feedback_label.pack(pady=10)
+        self.feedback_label = ctk.CTkLabel(self, text="Selecione um Pokémon",
+            font=("Arial", 16), text_color="#EEEEEE", fg_color="#393e46", corner_radius=8)
+        self.feedback_label.pack(pady=14)
 
-        self.pc_frame = tk.LabelFrame(self, text="Box: 1", font=("Arial", 16, "bold"), padx=10, pady=10)
-        self.pc_frame.pack(padx=10)
+        self.pc_frame = ctk.CTkFrame(self, fg_color="#222831", corner_radius=12)
+        box_label = ctk.CTkLabel(self.pc_frame, text="Box: 1", font=("Arial", 17, "bold"), text_color="#00adb5")
+        box_label.pack(pady=6)
+        self.pc_frame.pack(padx=10, pady=4)
 
-        self.equipe_frame = tk.LabelFrame(self, text="Equipe", font=("Arial", 14, "bold"), padx=10, pady=10)
-        self.equipe_frame.pack(padx=10, pady=20, fill="x")
-
-        tk.Button(self, text="Fechar PC", font=("Arial", 14, "bold"), command=self.fechar).pack(pady=10)
+        ctk.CTkButton(self, text="Fechar PC", font=("Arial", 15, "bold"),
+            command=self.fechar, corner_radius=14, fg_color="#ff3a5c", hover_color="#c80035").pack(pady=14)
 
         self.redesenhar_widgets()
 
     def redesenhar_widgets(self):
-        # Limpa frames antes de redesenhar
-        for widget in self.pc_frame.winfo_children(): widget.destroy()
-        for widget in self.equipe_frame.winfo_children(): widget.destroy()
-        
-        # Desenha os slots do PC (estilo antigo e simples)
+        for widget in self.pc_frame.winfo_children():
+            if isinstance(widget, ctk.CTkLabel): continue
+            widget.destroy()
+
         pc_list = self.controller.get_treinador_pc()
-        for i in range(30):
+        linhas, colunas = 6, 4
+        total_slots = linhas * colunas
+
+        print(f"DEBUG colunas={colunas}, linhas={linhas}, total_slots={total_slots}")
+
+
+        for i in range(total_slots):
             pokemon = pc_list[i] if i < len(pc_list) and pc_list[i] is not None else None
-            slot_widget = self.criar_slot_pc_simples(self.pc_frame, pokemon, "pc", i)
-            slot_widget.grid(row=i//6, column=i%6, padx=5, pady=5)
-            
-        # Desenha os slots da Equipe (estilo novo e detalhado)
-        equipe_list = self.controller.get_treinador_equipe()
-        for i in range(6):
-            pokemon = equipe_list[i] if i < len(equipe_list) else None
-            slot_widget = self.criar_slot_equipe_detalhado(self.equipe_frame, pokemon, "equipe", i)
-            slot_widget.pack(side="left", padx=5, expand=True)
+            slot_widget = self.criar_slot_pc_grid(self.pc_frame, pokemon, i)
+            slot_widget.grid(row=i // colunas, column=i % colunas, padx=7, pady=7)
 
-    def criar_slot_pc_simples(self, parent, pokemon, lista_nome, index):
-        """Cria o widget SIMPLES para os slots da Box do PC."""
-        slot_frame = tk.Frame(parent, bd=1, relief="solid")
-        
-        img_placeholder = tk.Label(slot_frame, bg="white", width=10, height=4)
-        img_placeholder.pack(padx=5, pady=5)
-        
-        nome = pokemon['nome'] if pokemon else "- Vazio -"
-        cor = "black" if pokemon else "gray"
-        nome_label = tk.Label(slot_frame, text=nome, font=("Arial", 9), fg=cor)
-        nome_label.pack(padx=2, pady=(0, 5))
-        
-        clique_info = (lista_nome, index, pokemon)
-        for widget in [slot_frame, img_placeholder, nome_label]:
-            widget.bind("<Button-1>", lambda e, ci=clique_info: self.controller.handle_pc_click(ci))
-        
-        return slot_frame
-        
-    def criar_slot_equipe_detalhado(self, parent, pokemon, lista_nome, index):
-        """Cria o widget DETALHADO apenas para os slots da Equipe."""
-        slot_frame = tk.Frame(parent, bd=1, relief="solid")
-        
-        img_placeholder = tk.Label(slot_frame, bg="white", width=10, height=5)
-        img_placeholder.pack(side="left", padx=5, pady=5)
-        
-        info_frame = tk.Frame(slot_frame)
-        info_frame.pack(side="left", fill="x", expand=True, padx=5)
 
-        if pokemon:
-            pokedex_info = self.controller.get_pokedex_info(pokemon['pokedex_id'])
-            tipagem = ", ".join(pokedex_info['tipagem']) if pokedex_info else "???"
-
-            nome_label = tk.Label(info_frame, text=f"{pokemon['nome']} (Nv.{pokemon['nivel']})", font=("Arial", 9, "bold"), anchor="w")
-            nome_label.pack(fill="x")
-            
-            tipo_label = tk.Label(info_frame, text=f"Tipo: {tipagem}", font=("Arial", 8), anchor="w")
-            tipo_label.pack(fill="x")
-            
-            xp_label = tk.Label(info_frame, text=f"XP: {pokemon.get('xp_atual', 0)} / {pokemon.get('xp_para_upar', 1)}", font=("Arial", 8), anchor="w")
-            xp_label.pack(fill="x")
-        else:
-            nome_label = tk.Label(info_frame, text="- Vazio -", font=("Arial", 9, "italic"), fg="gray")
-            nome_label.pack(pady=10)
-
-        clique_info = (lista_nome, index, pokemon)
-        for widget in [slot_frame, img_placeholder, info_frame] + list(info_frame.winfo_children()):
-            widget.bind("<Button-1>", lambda e, ci=clique_info: self.controller.handle_pc_click(ci))
-            
+    def criar_slot_pc_grid(self, parent, pokemon, index):
+        slot_frame = ctk.CTkFrame(parent, fg_color="#393e46", corner_radius=11)
+        # Gerar imagem do sprite
+        img = None
+        if pokemon and "pokedex_id" in pokemon:
+            poke_id = pokemon["pokedex_id"]
+            try:
+                img_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{poke_id}.png"
+                response = requests.get(img_url)
+                pil_img = Image.open(io.BytesIO(response.content)).resize((64,64))
+                img = ImageTk.PhotoImage(pil_img)
+            except Exception:
+                img = None
+                CTkMessageBox(self, "Erro", f"Não foi possível baixar sprite de {pokemon['nome']}", icon="error")
+        img_label = ctk.CTkLabel(slot_frame, text="", width=68, height=68, fg_color="#333333")
+        if img:
+            img_label.configure(image=img)
+            img_label.image = img  # Evita garbage collector
+        img_label.pack(pady=6)
+        nome = pokemon["nome"] if pokemon else "- Vazio -"
+        level = f" Nv.{pokemon['nivel']}" if pokemon else ""
+        nome_label = ctk.CTkLabel(slot_frame, text=nome + level, font=("Arial", 11, "bold"),
+                                  text_color="#F8AD19" if pokemon else "#888888")
+        nome_label.pack(pady=(0,5))
         return slot_frame
 
     def fechar(self, event=None):

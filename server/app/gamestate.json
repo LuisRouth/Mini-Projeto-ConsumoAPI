@@ -3,8 +3,20 @@
   "treinadores": [
     {
       "id": 1,
-      "nome": "a",
-      "equipe": [],
+      "nome": "Tevinho",
+      "equipe": [
+        {
+          "id_captura": 1,
+          "pokedex_id": 152,
+          "nome": "Chikorita",
+          "nivel": 10,
+          "hp_max": 75,
+          "hp": 0,
+          "ataque": 73,
+          "xp_atual": 0,
+          "xp_para_upar": 73
+        }
+      ],
       "pc": [
         null,
         null,
