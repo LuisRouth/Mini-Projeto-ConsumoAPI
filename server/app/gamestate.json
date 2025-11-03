@@ -3,8 +3,20 @@
   "treinadores": [
     {
       "id": 1,
-      "nome": "a",
-      "equipe": [],
+      "nome": "s",
+      "equipe": [
+        {
+          "id_captura": 1,
+          "pokedex_id": 258,
+          "nome": "Mudkip",
+          "nivel": 10,
+          "hp_max": 81,
+          "hp": 81,
+          "ataque": 100,
+          "xp_atual": 0,
+          "xp_para_upar": 73
+        }
+      ],
       "pc": [
         null,
         null,

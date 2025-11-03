@@ -118,8 +118,13 @@ def adicionar_pokemon_ao_pc(treinador_id: int, novo_pokemon: dict) -> bool:
 def adicionar_pokemon_ao_treinador(treinador_id: int, novo_pokemon: dict, gamestate: dict) -> bool:
     for t in gamestate.get("treinadores", []):
         if t["id"] == treinador_id:
-            if len(t.get("equipe", [])) < 6:
-                t.setdefault("equipe", []).append(novo_pokemon)
+            equipe_real = [p for p in t.get("equipe", []) if p is not None]
+            if len(equipe_real) < 6:
+                try:
+                    idx_vazio = t["equipe"].index(None)
+                    t["equipe"][idx_vazio] = novo_pokemon
+                except (ValueError, KeyError):
+                    t.setdefault("equipe", []).append(novo_pokemon)
             else:
                 try:
                     primeiro_slot_vazio = t["pc"].index(None)
@@ -129,7 +134,7 @@ def adicionar_pokemon_ao_treinador(treinador_id: int, novo_pokemon: dict, gamest
             return True
     return False
 
-def atualizar_pokemon_na_equipe(treinador_id: int, pokemon_atualizado: dict, gamestate: dict) -> bool:
+def atualizar_pokemon_na_equipe(treinador_id: int, pokemon_atualizado: dict, gamestate: dict):
     for t in gamestate.get("treinadores", []):
         if t["id"] == treinador_id:
             for i, p in enumerate(t["equipe"]):

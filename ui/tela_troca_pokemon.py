@@ -16,6 +16,9 @@ class TelaTrocaPokemon(tk.Toplevel):
         party_frame.pack(pady=20, padx=20, expand=True, fill="both")
 
         for pokemon in equipe_atual:
+            if pokemon is None: # Se o slot estiver vazio, pule para o próximo
+                continue
+                
             info_text = f"{pokemon['nome']} (Nv.{pokemon['nivel']})\nHP: {pokemon['hp']} / {pokemon['hp_max']}"
             
             btn = tk.Button(

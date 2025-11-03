@@ -126,6 +126,7 @@ def executar_acao_batalha(batalha_id: int, acao: schemas.AcaoBatalha):
                 batalha['resultado_final'] = "Você foi derrotado..."
 
             # Batalha Continua
+            crud.atualizar_batalha(batalha, gamestate)
             crud.atualizar_pokemon_na_equipe(treinador['id'], pokemon_em_campo, gamestate)
             crud.save_gamestate(gamestate)
             return batalha
@@ -146,12 +147,8 @@ def trocar_pokemon_em_batalha(batalha_id: int, acao: schemas.AcaoTroca):
         raise HTTPException(status_code=404, detail="Batalha não encontrada.")
         
     treinador = crud.get_treinador_by_id(batalha["treinador_id"])
-    
-    # Encontra o Pokémon para qual o jogador quer trocar
     pokemon_para_trocar = crud.get_pokemon_da_equipe_by_id(treinador["id"], acao.id_captura_para_troca)
     pokemon_em_campo_antigo = crud.get_pokemon_da_equipe_by_id(treinador["id"], batalha["pokemon_em_campo_id_captura"])
-
-    # Validações importantes
     if not pokemon_para_trocar:
         raise HTTPException(status_code=404, detail="Pokémon escolhido para troca não foi encontrado na sua equipe.")
     if pokemon_para_trocar["hp"] <= 0:
@@ -180,6 +177,7 @@ def trocar_pokemon_em_batalha(batalha_id: int, acao: schemas.AcaoTroca):
 
     # Salva as alterações
     crud.atualizar_pokemon_na_equipe(treinador['id'], pokemon_para_trocar, gamestate)
-    crud.save_gamestate(gamestate) # Salva o estado final
+    crud.atualizar_batalha(batalha, gamestate)
+    crud.save_gamestate(gamestate)
 
     return batalha

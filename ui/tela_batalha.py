@@ -64,23 +64,23 @@ class TelaBatalha(tk.Frame):
         log_scrollbar.config(command=self.log_text.yview)
         
         # --- Frame para os Botões ---
-        botoes_frame = tk.Frame(menu_frame)
-        botoes_frame.grid(row=0, column=1, sticky="nsew")
-        botoes_frame.columnconfigure((0, 1), weight=1)
-        botoes_frame.rowconfigure((0, 1), weight=1)
+        self.botoes_frame = tk.Frame(menu_frame)
+        self.botoes_frame.grid(row=0, column=1, sticky="nsew")
+        self.botoes_frame.columnconfigure((0, 1), weight=1)
+        self.botoes_frame.rowconfigure((0, 1), weight=1)
 
         # --- Botões ---
-        btn_fight = tk.Button(botoes_frame, text="LUTAR", font=("Arial", 14), command=lambda: self.controller.handle_acao_batalha(self.batalha_id, 'atacar'))
-        btn_fight.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        self.btn_fight = tk.Button(self.botoes_frame, text="LUTAR", font=("Arial", 14), command=lambda: self.controller.handle_acao_batalha(self.batalha_id, 'atacar'))
+        self.btn_fight.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
-        btn_bag = tk.Button(botoes_frame, text="CAPTURAR", font=("Arial", 14), command=lambda: self.controller.handle_acao_batalha(self.batalha_id, 'capturar'))
-        btn_bag.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        self.btn_bag = tk.Button(self.botoes_frame, text="CAPTURAR", font=("Arial", 14), command=lambda: self.controller.handle_acao_batalha(self.batalha_id, 'capturar'))
+        self.btn_bag.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
         
-        btn_pokemon = tk.Button(botoes_frame, text="POKÉMON", font=("Arial", 14), command=self.controller.handle_mostrar_tela_troca)
-        btn_pokemon.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+        self.btn_pokemon = tk.Button(self.botoes_frame, text="POKÉMON", font=("Arial", 14), command=self.controller.handle_mostrar_tela_troca)
+        self.btn_pokemon.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
         
-        btn_run = tk.Button(botoes_frame, text="FUGIR", font=("Arial", 14), command=lambda: self.controller.handle_acao_batalha(self.batalha_id, 'fugir'))
-        btn_run.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
+        self.btn_run = tk.Button(self.botoes_frame, text="FUGIR", font=("Arial", 14), command=lambda: self.controller.handle_acao_batalha(self.batalha_id, 'fugir'))
+        self.btn_run.grid(row=1, column=1, sticky="nsew", padx=5, pady=5)
 
         self.atualizar_interface(batalha_info)
 
@@ -110,3 +110,6 @@ class TelaBatalha(tk.Frame):
         self.log_text.insert("1.0", "\n".join(batalha_info['log_batalha']))
         self.log_text.config(state="disabled")
         self.log_text.see(tk.END)
+        if 'resultado_final' in batalha_info:
+            for child in self.botoes_frame.winfo_children(): 
+                child.config(state="disabled")

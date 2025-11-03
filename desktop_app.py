@@ -126,6 +126,7 @@ class App(tk.Tk):
         self.container.grid_columnconfigure(0, weight=1)
         self.pokemon_selecionado_pc = None
         self.origem_selecao_pc = None
+        self.troca_window = None
         self.batalha_atual = None
 
         self.mostrar_frame(TelaLogin)
@@ -257,10 +258,14 @@ class App(tk.Tk):
         if not batalha_atual: return
 
         try:
-            batalha_atual = api.trocar_pokemon(batalha_atual['id'], id_captura)
+            resposta_batalha = api.trocar_pokemon(batalha_atual['id'], id_captura)
+            
+            if resposta_batalha:
+                batalha_atual = resposta_batalha
+                self.batalha_atual = resposta_batalha
+            
             if self.troca_window and self.troca_window.winfo_exists():
                 self.troca_window.destroy()
-            
             if hasattr(self.current_frame, 'atualizar_interface'):
                 self.current_frame.atualizar_interface(batalha_atual)
             
