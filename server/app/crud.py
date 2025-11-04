@@ -43,9 +43,10 @@ def get_treinador_by_id(treinador_id: int):
 
 def get_pokemon_da_equipe_by_id(treinador_id: int, id_captura: int):
     treinador = get_treinador_by_id(treinador_id)
-    if not treinador: return None
+    if not treinador: 
+        return None
     for p in treinador.get("equipe", []):
-        if p["id_captura"] == id_captura:
+        if p and p["id_captura"] == id_captura:
             return p
     return None
 
