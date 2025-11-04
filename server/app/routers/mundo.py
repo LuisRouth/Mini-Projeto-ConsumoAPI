@@ -14,25 +14,29 @@ AREAS_DATA = {
         "nome": "Rota Inicial",
         "level_range": (10, 30),
         "allowed_rarities": ["Comum", "Incomum", "Raro"],
-        "encounter_chance": {"Comum": 750, "Incomum": 200, "Raro": 50}
+        "encounter_chance": {"Comum": 750, "Incomum": 200, "Raro": 50},
+        "xp_multiplier": 1.0
     },
     "2": {
         "nome": "Floresta Sombria",
         "level_range": (30, 50),
         "allowed_rarities": ["Incomum", "Raro", "Muito Raro"],
-        "encounter_chance": {"Incomum": 700, "Raro": 350, "Muito Raro": 40}
+        "encounter_chance": {"Incomum": 700, "Raro": 350, "Muito Raro": 40},
+        "xp_multiplier": 2.0
     },
     "3": {
         "nome": "Montanhas Rochosas",
         "level_range": (50, 80),
-        "allowed_rarities": ["Raro", "Muito Raro", "Lendário"],
-        "encounter_chance": {"Raro": 600, "Muito Raro": 300, "Lendário": 30}
+        "allowed_rarities": ["Raro", "Muito Raro", "Mítico"],
+        "encounter_chance": {"Raro": 600, "Muito Raro": 300, "Mítico": 30},
+        "xp_multiplier": 4.0
     },
     "4": {
         "nome": "Caverna Misteriosa",
         "level_range": (80, 100),
-        "allowed_rarities": ["Muito Raro", "Lendário", "Mítico"],
-        "encounter_chance": {"Muito Raro": 400, "Lendário": 300, "Mítico": 70}
+        "allowed_rarities": ["Muito Raro", "Mítico", "Lendário"],
+        "encounter_chance": {"Muito Raro": 400, "Mítico": 300, "Lendário": 70},
+        "xp_multiplier": 8.0
     }
 }
 

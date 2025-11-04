@@ -16,3 +16,4 @@ class BatalhaInfo(BaseModel):
     treinador_id: int
     pokemon_nome: str
     nivel_encontrado: int
+    area_id: str

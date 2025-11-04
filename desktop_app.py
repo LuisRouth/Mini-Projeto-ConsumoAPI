@@ -43,6 +43,9 @@ class ApiClient:
 
     def criar_treinador(self, nome):
         return self._request('post', '/treinador', {'nome': nome})
+    
+    def get_treinador(self, treinador_id):
+        return self._request('get', f'/treinador/{treinador_id}')
 
     def buscar_iniciais(self):
         return self._request('get', '/pokedex/iniciais')
@@ -56,17 +59,24 @@ class ApiClient:
                 return pokemon
         return None
     
+    def desafiar_ginasio(self, ginasio_id, treinador_id):
+        return self._request('post', f'/ginasio/{ginasio_id}/desafiar', json_data={'treinador_id': treinador_id})
+
+    def executar_acao_batalha_ginasio(self, batalha_id, tipo_acao):
+        return self._request('post', f'/ginasio/batalha/{batalha_id}/acao', {'tipo': tipo_acao})
+    
     def get_areas(self):
         return self._request('get', '/mundo/areas')
     
     def encontrar_pokemon(self, area_id: str):
         return self._request('get', f'/mundo/encontrar-pokemon?area_id={area_id}')
 
-    def iniciar_batalha(self, treinador_id, pokemon_nome, nivel):
+    def iniciar_batalha(self, treinador_id, pokemon_nome, nivel, area_id):
         payload = {
             'treinador_id': treinador_id,
             'pokemon_nome': pokemon_nome,
-            'nivel_encontrado': nivel
+            'nivel_encontrado': nivel,
+            'area_id': area_id
         }
         return self._request('post', '/batalha/iniciar', payload)
     
@@ -179,6 +189,49 @@ class App(tk.Tk):
         except requests.exceptions.HTTPError as e:
             erro_msg = e.response.json().get("detail", "Erro ao escolher o Pokémon.")
             messagebox.showerror("Erro", erro_msg, parent=self.container)
+
+    def get_ginasios(self):
+        return self._request('get', '/ginasio/')
+
+    def desafiar_ginasio(self, ginasio_id, treinador_id):
+        return self._request('post', f'/ginasio/{ginasio_id}/desafiar', json_data={'treinador_id': treinador_id})
+    
+    def handle_desafiar_ginasio(self, ginasio_id: str):
+        global treinador_atual, batalha_atual
+        try:
+            resposta_batalha = api.desafiar_ginasio(ginasio_id, treinador_atual['id'])
+            
+            if resposta_batalha:
+                batalha_atual = resposta_batalha
+                from ui.tela_batalha_ginasio import TelaBatalhaGinasio
+                self.mostrar_frame(TelaBatalhaGinasio, batalha_atual)
+        except requests.exceptions.HTTPError as e:
+            erro_msg = e.response.json().get("detail", "Não foi possível iniciar o desafio.")
+            messagebox.showerror("Erro de Desafio", erro_msg)
+
+    def handle_acao_batalha_ginasio(self, batalha_id, tipo_acao):
+        global batalha_atual, treinador_atual
+        try:
+            resposta_batalha = api.executar_acao_batalha_ginasio(batalha_id, tipo_acao)
+            batalha_atual = resposta_batalha
+            
+            if hasattr(self.current_frame, 'atualizar_interface'):
+                self.current_frame.atualizar_interface(batalha_atual)
+            if 'resultado_final' in batalha_atual:
+                messagebox.showinfo("Batalha de Ginásio Terminada", batalha_atual['resultado_final'])
+                treinador_atual = api.get_treinador(treinador_atual['id'])
+                self.mostrar_frame(TelaGeral)
+
+        except requests.exceptions.HTTPError as e:
+            erro_msg = e.response.json().get("detail", "Ocorreu um erro na batalha.")
+            messagebox.showerror("Erro de Batalha", erro_msg)
+
+    def executar_acao_batalha_ginasio(self, batalha_id, tipo_acao):
+        return self._request('post', f'/ginasio/batalha/{batalha_id}/acao', {'tipo': tipo_acao})
+    
+    def trocar_pokemon_batalha_ginasio(self, batalha_id, id_captura):
+        payload = {'id_captura_para_troca': id_captura}
+        return self._request('post', f'/ginasio/batalha/{batalha_id}/trocar', payload)
     
     def get_ginasios_vencidos(self):
         global treinador_atual
@@ -236,9 +289,15 @@ class App(tk.Tk):
 
     def handle_iniciar_batalha(self, pokemon_encontrado):
         global batalha_atual, treinador_atual
-        
         try:
-            resposta_batalha = api.iniciar_batalha(treinador_atual['id'], pokemon_encontrado['nome'], pokemon_encontrado['nivel'])
+            area_atual_id = self.current_frame.area_selecionada_id
+            
+            resposta_batalha = api.iniciar_batalha(
+                treinador_atual['id'],
+                pokemon_encontrado['nome'],
+                pokemon_encontrado['nivel'],
+                area_atual_id
+            )
             if resposta_batalha:
                 batalha_atual = resposta_batalha
                 self.batalha_atual = resposta_batalha
@@ -250,6 +309,10 @@ class App(tk.Tk):
             messagebox.showerror("Erro", erro_msg)
         
     def handle_mostrar_tela_troca(self):
+        equipe_disponivel = [p for p in self.get_treinador_equipe() if p and p.get('hp', 0) > 0]
+        if not equipe_disponivel:
+            messagebox.showwarning("Sem Opções", "Você não tem mais Pokémon para lutar!")
+            return
         from ui.tela_troca_pokemon import TelaTrocaPokemon
         self.troca_window = TelaTrocaPokemon(self, self)
 

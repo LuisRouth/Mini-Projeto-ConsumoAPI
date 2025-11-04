@@ -42,26 +42,49 @@ class TelaGeral(tk.Frame):
         
         ginasios_vencidos = self.controller.get_ginasios_vencidos()
         
-        for i, area_id in enumerate(self.areas_data, 1):
-            btn = tk.Button(
-                acoes_frame,
-                text=f"Explorar a Área {area_id}",
-                font=("Arial", 12)
-            )
-            btn.pack(pady=5, fill="x")
+        # Iteramos por todas as áreas disponíveis
+        for area_id, area_info in self.areas_data.items():
+            # Frame para agrupar os botões de cada área
+            area_container = tk.LabelFrame(acoes_frame, text=area_info['nome'], font=("Arial", 14), padx=10, pady=5)
+            area_container.pack(fill="x", pady=7)
             
-            if ginasios_vencidos >= (i - 1):
-                btn.config(command=lambda aid=area_id: self.mostrar_acoes_padrao(aid))
-            else:
-                btn.config(state="disabled")
+            # Botão de Explorar (procurar Pokémon selvagens)
+            btn_explorar = tk.Button(
+                area_container,
+                text="Explorar Área",
+                font=("Arial", 12),
+                command=lambda aid=area_id: self.mostrar_acoes_padrao(aid)
+            )
+            btn_explorar.pack(side="left", padx=5, expand=True)
 
-        btn_ginasio = tk.Button(
-            acoes_frame,
-            text="Ir para o Ginásio",
-            font=("Arial", 14),
-            command=lambda: self.controller.mostrar_aviso("Ginásio ainda em construção!")
-        )
-        btn_ginasio.pack(side="bottom", pady=15, fill="x")
+            # Botão de Ginásio (com a nova lógica)
+            btn_ginasio = tk.Button(
+                area_container,
+                font=("Arial", 12, "bold"),
+            )
+            btn_ginasio.pack(side="left", padx=5, expand=True)
+            
+            # --- LÓGICA DE PROGRESSÃO ---
+            area_num = int(area_id)
+
+            if ginasios_vencidos >= area_num:
+                # O jogador JÁ venceu este ginásio
+                area_container.config(fg="gray")
+                btn_ginasio.config(text="Ginásio Vencido", state="disabled")
+                btn_explorar.config(state="normal")
+            
+            elif ginasios_vencidos == area_num - 1:
+                # Esta é a área ATUAL do jogador
+                area_container.config(fg="blue")
+                btn_ginasio.config(text="Desafiar Ginásio", state="normal",
+                                   command=lambda gid=area_id: self.controller.handle_desafiar_ginasio(gid))
+                btn_explorar.config(state="normal")
+                
+            else:
+                # Áreas futuras que estão bloqueadas
+                area_container.config(fg="gray")
+                btn_ginasio.config(text="Ginásio Bloqueado", state="disabled")
+                btn_explorar.config(state="disabled")
 
 
         # --- PAINEL DA DIREITA (EVENTOS) ---

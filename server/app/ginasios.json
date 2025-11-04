@@ -1,0 +1,32 @@
+{
+  "1": {
+    "nome_ginasio": "Ginásio de Pewter",
+    "lider_nome": "Brock",
+    "insignia": "Insígnia da Rocha",
+    "equipe": [
+      {
+        "pokedex_id": 16,
+        "nivel": 12
+      },
+      {
+        "pokedex_id": 19,
+        "nivel": 14
+      }
+    ]
+  },
+  "2": {
+    "nome_ginasio": "Ginásio de Cerulean",
+    "lider_nome": "Misty",
+    "insignia": "Insígnia da Cascata",
+    "equipe": [
+      {
+        "pokedex_id": 1,
+        "nivel": 18
+      },
+      {
+        "pokedex_id": 16,
+        "nivel": 21
+      }
+    ]
+  }
+}

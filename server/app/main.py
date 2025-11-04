@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from . import crud
-from .routers import treinador, mundo, batalha
+from .routers import treinador, mundo, batalha, ginasio
 
 app = FastAPI(
     title="API Pokémon",
@@ -26,6 +26,7 @@ app.add_middleware(
 app.include_router(treinador.router)
 app.include_router(mundo.router)
 app.include_router(batalha.router)
+app.include_router(ginasio.router)
 
 @app.get("/", tags=["Status"])
 def ler_raiz():

@@ -25,7 +25,7 @@ def iniciar_batalha(info: schemas.BatalhaInfo):
     if not pokemon_apto_para_batalha:
         raise HTTPException(status_code=400, detail="Todos os seus Pokémon estão desmaiados! Visite um Centro Pokémon.")
 
-    nova_batalha = crud.criar_nova_batalha(treinador, pokemon_apto_para_batalha, pokemon_modelo, info.nivel_encontrado)
+    nova_batalha = crud.criar_nova_batalha(treinador, pokemon_apto_para_batalha, pokemon_modelo, info.nivel_encontrado, info.area_id)
     return nova_batalha
 
 @router.post("/{batalha_id}/acao")

@@ -3,10 +3,12 @@ import math
 import json
 import os
 from .routers import mundo
+from . import schemas, type_logic
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 POKEDEX_FILE = os.path.join(APP_DIR, "pokedex.json")
 GAMESTATE_FILE = os.path.join(APP_DIR, "gamestate.json")
+GINASIOS_FILE = os.path.join(APP_DIR, "ginasios.json")
 
 RARITY_MULTIPLIERS = {
     "Comum": 1.0,
@@ -145,25 +147,27 @@ def atualizar_pokemon_na_equipe(treinador_id: int, pokemon_atualizado: dict, gam
 
 def dar_xp_e_evoluir_equipe(batalha: dict, oponente_vencido: dict, gamestate: dict) -> list[str]:
     treinador_id = batalha['treinador_id']
-    treinador = None
-    for t in gamestate.get("treinadores", []):
-        if t["id"] == treinador_id:
-            treinador = t
-            break
+    treinador = next((t for t in gamestate.get("treinadores", []) if t["id"] == treinador_id), None)
 
-    if not treinador: return ["Erro: Treinador não encontrado."]
+    if not treinador: 
+        return ["Erro: Treinador não encontrado."]
     area_id = str(batalha.get("area_id", "1"))
-    level_cap = mundo.AREAS_DATA[area_id]["level_range"][1]
     
+    from .routers import mundo
+    area_rules = mundo.AREAS_DATA.get(area_id, mundo.AREAS_DATA["1"])
+    level_cap = area_rules["level_range"][1]
+    xp_multiplier = area_rules.get("xp_multiplier", 1.0)
+
     nivel_oponente = oponente_vencido['nivel']
     fator_base = 25
-
+    xp_ganho_base = 0
     if nivel_oponente >= 20:
-        xp_ganho = math.floor(nivel_oponente * fator_base * 6)
+        xp_ganho_base = math.floor(nivel_oponente * fator_base * 6)
     else:
-        xp_ganho = math.floor(nivel_oponente * fator_base)
-    logs_gerais = [f"Todos na equipe ganharam {xp_ganho} pontos de experiência!"]
+        xp_ganho_base = math.floor(nivel_oponente * fator_base)
+    xp_ganho_final = math.floor(xp_ganho_base * xp_multiplier)
     
+    logs_gerais = [f"Todos na equipe ganharam uns absurdos {xp_ganho_final} pontos de experiência!"]
     for pokemon in treinador.get("equipe", []):
         if not pokemon or pokemon['hp'] <= 0:
             continue
@@ -172,7 +176,7 @@ def dar_xp_e_evoluir_equipe(batalha: dict, oponente_vencido: dict, gamestate: di
             logs_gerais.append(f"{pokemon['nome']} já está no nível máximo da área e não ganhou XP.")
             continue
 
-        pokemon['xp_atual'] += xp_ganho
+        pokemon['xp_atual'] += xp_ganho_final
         
         leveled_up = False
         info_pokedex_atual = get_pokemon_from_pokedex_by_id(pokemon["pokedex_id"])
@@ -323,7 +327,7 @@ def _gerar_novo_id_batalha(gamestate: dict) -> int:
             max_id = batalha["id"]
     return max_id + 1
 
-def criar_nova_batalha(treinador: dict, pokemon_treinador: dict, pokemon_selvagem_modelo: dict, nivel_selvagem: int) -> dict:
+def criar_nova_batalha(treinador: dict, pokemon_treinador: dict, pokemon_selvagem_modelo: dict, nivel_selvagem: int, area_id: str) -> dict:
     gamestate = get_gamestate()
     stats_oponente = calcular_stats_pokemon(pokemon_selvagem_modelo, nivel_selvagem)
 
@@ -341,12 +345,11 @@ def criar_nova_batalha(treinador: dict, pokemon_treinador: dict, pokemon_selvage
         "treinador_id": treinador["id"],
         "pokemon_em_campo_id_captura": pokemon_treinador["id_captura"],
         "oponente": oponente,
-        "log_batalha": [f"Um {oponente['nome']} selvagem (Nível {nivel_selvagem}) apareceu!"]
+        "log_batalha": [f"Um {oponente['nome']} selvagem (Nível {nivel_selvagem}) apareceu!"],
+        "area_id": area_id
     }
-
     gamestate.setdefault("batalhas_ativas", []).append(nova_batalha)
     save_gamestate(gamestate)
-
     return nova_batalha
 
 def get_batalha_by_id(batalha_id: int):
@@ -387,3 +390,139 @@ def curar_pokemons_treinador(treinador_id: int):
             
     save_gamestate(gamestate)
     return True
+
+def get_ginasio_data_by_id(ginasio_id: str):
+    """Carrega os dados de um ginásio específico a partir do JSON."""
+    try:
+        with open(GINASIOS_FILE, "r", encoding="utf-8") as f:
+            todos_ginasios = json.load(f)
+            return todos_ginasios.get(ginasio_id)
+    except FileNotFoundError:
+        return None
+
+def criar_batalha_de_ginasio(treinador: dict, ginasio_id: str) -> dict:
+    gamestate = get_gamestate()
+    info_ginasio = get_ginasio_data_by_id(ginasio_id)
+    
+    if not info_ginasio:
+        return {"error": "Ginásio não encontrado."}
+    
+    if treinador.get("ginasios_vencidos", 0) >= int(ginasio_id):
+        return {"error": "Você já venceu este ginásio!"}
+    equipe_lider = []
+    for p_modelo in info_ginasio.get("equipe", []):
+        pokedex_info = get_pokemon_from_pokedex_by_id(p_modelo["pokedex_id"])
+        if not pokedex_info:
+            print(f"AVISO: Pokémon com ID {p_modelo['pokedex_id']} do ginásio não encontrado na pokedex.")
+            continue
+            
+        stats = calcular_stats_pokemon(pokedex_info, p_modelo["nivel"])
+        equipe_lider.append({
+            "nome": pokedex_info["nome"],
+            "nivel": p_modelo["nivel"],
+            "hp_max": stats["hp"],
+            "hp_atual": stats["hp"],
+            "ataque": stats["ataque"],
+            "pokedex_id": pokedex_info["id"],
+            "tipagem": pokedex_info.get("tipagem", [])
+        })
+    if not equipe_lider:
+        return {"error": f"Falha ao configurar o ginásio. A equipe do líder {info_ginasio.get('lider_nome')} está vazia. Verifique a Pokedex."}
+    pokemon_jogador = next((p for p in treinador.get("equipe", []) if p and p.get("hp", 0) > 0), None)
+    if not pokemon_jogador:
+        return {"error": "Todos os seus Pokémon estão desmaiados!"}
+
+    nova_batalha = {
+        "id": _gerar_novo_id_batalha(gamestate),
+        "tipo": "GINASIO",
+        "treinador_id": treinador["id"],
+        "ginasio_id": ginasio_id,
+        "pokemon_em_campo_id_captura": pokemon_jogador["id_captura"],
+        "oponente_lider": {
+            "nome": info_ginasio["lider_nome"],
+            "equipe": equipe_lider,
+            "pokemon_ativo_idx": 0
+        },
+        "log_batalha": [f"Você desafiou o Líder de Ginásio {info_ginasio['lider_nome']}!", f"{info_ginasio['lider_nome']} enviou {equipe_lider[0]['nome']}!"]
+    }
+    
+    gamestate.setdefault("batalhas_ativas", []).append(nova_batalha)
+    save_gamestate(gamestate)
+    return nova_batalha
+
+def processar_acao_batalha_ginasio(batalha_id: int, acao: schemas.AcaoBatalha) -> dict:
+    gamestate = get_gamestate()
+    batalha = next((b for b in gamestate.get("batalhas_ativas", []) if b["id"] == batalha_id and b.get("tipo") == "GINASIO"), None)
+    
+    if not batalha:
+        return {"error": "Batalha de ginásio não encontrada ou já terminada."}
+    treinador_id = batalha["treinador_id"]
+    treinador = next((t for t in gamestate.get("treinadores", []) if t["id"] == treinador_id), None)
+    if not treinador:
+        return {"error": "O treinador para esta batalha não foi encontrado no gamestate."}
+    pokemon_jogador = get_pokemon_da_equipe_by_id(treinador["id"], batalha["pokemon_em_campo_id_captura"])
+    
+    oponente_lider = batalha["oponente_lider"]
+    pokemon_ativo_idx = oponente_lider["pokemon_ativo_idx"]
+    pokemon_oponente_ativo = oponente_lider["equipe"][pokemon_ativo_idx]
+    log = batalha["log_batalha"]
+
+    if acao.tipo == "atacar":
+        info_jogador = get_pokemon_from_pokedex_by_id(pokemon_jogador["pokedex_id"])
+        info_oponente = get_pokemon_from_pokedex_by_id(pokemon_oponente_ativo["pokedex_id"])
+        dano_jogador = int(max(1, (pokemon_jogador["ataque"] / 4)) * type_logic.calcular_multiplicador(info_jogador['tipagem'][0], info_oponente['tipagem']))
+        pokemon_oponente_ativo["hp_atual"] -= dano_jogador
+        log.append(f"{pokemon_jogador['nome']} usou um ataque e causou {dano_jogador} de dano!")
+        if pokemon_oponente_ativo["hp_atual"] > 0:
+            dano_oponente = int(max(1, (pokemon_oponente_ativo["ataque"] / 4)) * type_logic.calcular_multiplicador(info_oponente['tipagem'][0], info_jogador['tipagem']))
+            pokemon_jogador["hp"] -= dano_oponente
+            log.append(f"{pokemon_oponente_ativo['nome']} contra-ataca e causa {dano_oponente} de dano!")
+
+        # --- VERIFICAÇÕES DE FIM DE TURNO ---
+
+        # 1. VERIFICA DERROTA DO JOGADOR (MAIOR PRIORIDADE)
+        if pokemon_jogador["hp"] <= 0:
+            pokemon_jogador["hp"] = 0
+            log.append(f"Seu {pokemon_jogador['nome']} desmaiou!")
+            outros_pokemons_aptos = any(p and p["hp"] > 0 for p in treinador.get("equipe", []))
+            if not outros_pokemons_aptos:
+                log.append(f"Todos os seus Pokémon foram derrotados. Você perdeu a batalha!")
+                batalha["resultado_final"] = "Você foi derrotado, corra para o Centro Pokémon!"
+                batalha["vitoria"] = False
+                deletar_batalha(batalha_id, gamestate)
+                save_gamestate(gamestate)
+                return batalha
+
+        # 2. VERIFICA DERROTA DO OPONENTE (SE O JOGADOR AINDA ESTIVER EM PÉ)
+        if pokemon_oponente_ativo["hp_atual"] <= 0:
+            pokemon_oponente_ativo["hp_atual"] = 0
+            log.append(f"O {pokemon_oponente_ativo['nome']} do Líder {oponente_lider['nome']} foi derrotado!")
+            proximo_pokemon_idx = pokemon_ativo_idx + 1
+            if proximo_pokemon_idx < len(oponente_lider["equipe"]):
+                oponente_lider["pokemon_ativo_idx"] = proximo_pokemon_idx
+                proximo_pokemon = oponente_lider["equipe"][proximo_pokemon_idx]
+                log.append(f"{oponente_lider['nome']} enviou {proximo_pokemon['nome']}!")
+            else:
+                log.append(f"Você derrotou o Líder de Ginásio {oponente_lider['nome']}!")
+                batalha["resultado_final"] = f"Parabéns! Você venceu e ganhou a insígnia!"
+                batalha["vitoria"] = True
+                treinador["ginasios_vencidos"] = max(treinador.get("ginasios_vencidos", 0), int(batalha["ginasio_id"]))
+                dar_xp_e_evoluir_equipe(batalha, pokemon_oponente_ativo, gamestate)
+                deletar_batalha(batalha_id, gamestate)
+                save_gamestate(gamestate)
+                return batalha
+
+        atualizar_batalha(batalha, gamestate)
+        atualizar_pokemon_na_equipe(treinador["id"], pokemon_jogador, gamestate)
+        save_gamestate(gamestate)
+        return batalha
+        
+    elif acao.tipo == "fugir":
+        log.append("Você fugiu da batalha de ginásio!")
+        batalha["resultado_final"] = "Você fugiu e foi considerado derrotado. Tente novamente!"
+        batalha["vitoria"] = False
+        deletar_batalha(batalha_id, gamestate)
+        save_gamestate(gamestate)
+        return batalha
+    
+    return {"error": "Ação inválida para batalha de ginásio."}
