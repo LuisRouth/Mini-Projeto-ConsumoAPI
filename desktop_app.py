@@ -221,10 +221,16 @@ class App(tk.Tk):
             
             if hasattr(self.current_frame, 'atualizar_interface'):
                 self.current_frame.atualizar_interface(batalha_atual)
+
+            # SE O RESULTADO FINAL VEIO DA AÇÃO, TERMINA TUDO
             if 'resultado_final' in batalha_atual:
                 messagebox.showinfo("Batalha de Ginásio Terminada", batalha_atual['resultado_final'])
                 treinador_atual = api.get_treinador(treinador_atual['id'])
                 self.mostrar_frame(TelaGeral)
+                return
+
+            if batalha_atual.get("estado") == "AGUARDANDO_TROCA":
+                self.handle_mostrar_tela_troca(is_forced=True)
 
         except requests.exceptions.HTTPError as e:
             erro_msg = e.response.json().get("detail", "Ocorreu um erro na batalha.")
@@ -308,41 +314,48 @@ class App(tk.Tk):
             erro_msg = e.response.json().get("detail", "Não foi possível iniciar a batalha.")
             messagebox.showerror("Erro", erro_msg)
         
-    def handle_mostrar_tela_troca(self):
+    def handle_mostrar_tela_troca(self, is_forced: bool = False):
+        global treinador_atual
+        
         equipe_disponivel = [p for p in self.get_treinador_equipe() if p and p.get('hp', 0) > 0]
+        
         if not equipe_disponivel:
-            messagebox.showwarning("Sem Opções", "Você não tem mais Pokémon para lutar!")
+            messagebox.showinfo("Batalha Perdida", "Você não tem mais Pokémon para lutar. A batalha terminou!")
+            treinador_atual = api.get_treinador(treinador_atual['id'])
+            self.mostrar_frame(TelaGeral)
             return
+
         from ui.tela_troca_pokemon import TelaTrocaPokemon
-        self.troca_window = TelaTrocaPokemon(self, self)
+        self.troca_window = TelaTrocaPokemon(self, self, is_forced)
 
     def handle_trocar_pokemon(self, id_captura):
-        global batalha_atual
+        global batalha_atual, treinador_atual
         if not batalha_atual: return
 
         try:
             resposta_batalha = None
-            # --- LÓGICA DE DECISÃO ---
+            # Verifica qual endpoint de API usar
             if batalha_atual.get('tipo') == 'GINASIO':
                 resposta_batalha = api.trocar_pokemon_batalha_ginasio(batalha_atual['id'], id_captura)
             else:
                 resposta_batalha = api.trocar_pokemon(batalha_atual['id'], id_captura)
             
-            # O resto da função continua exatamente o mesmo...
+            # Se o backend respondeu, atualize o estado local
             if resposta_batalha:
                 batalha_atual = resposta_batalha
                 self.batalha_atual = resposta_batalha
             
+            # Fecha a janela de troca e atualiza a interface da batalha principal
             if self.troca_window and self.troca_window.winfo_exists():
                 self.troca_window.destroy()
             if hasattr(self.current_frame, 'atualizar_interface'):
                 self.current_frame.atualizar_interface(batalha_atual)
-            
             if 'resultado_final' in batalha_atual:
                 messagebox.showinfo("Batalha Encerrada", batalha_atual['resultado_final'])
                 treinador_atual = api.get_treinador(treinador_atual['id'])
                 self.mostrar_frame(TelaGeral)
-                
+                return  # Encerra a função para evitar qualquer ação posterior
+
         except requests.exceptions.HTTPError as e:
             erro_msg = e.response.json().get("detail", "Não foi possível trocar o Pokémon.")
             messagebox.showerror("Erro de Troca", erro_msg)

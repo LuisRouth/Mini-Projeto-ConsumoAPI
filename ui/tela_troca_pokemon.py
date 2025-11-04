@@ -1,7 +1,10 @@
+# ui/tela_troca_pokemon.py - VERSÃO FINAL E CORRIGIDA
+
 import tkinter as tk
 
 class TelaTrocaPokemon(tk.Toplevel):
-    def __init__(self, master, controller):
+    # --- A MUDANÇA ESTÁ AQUI NA ASSINATURA ---
+    def __init__(self, master, controller, is_forced: bool = False):
         super().__init__(master)
         self.controller = controller
         
@@ -16,7 +19,7 @@ class TelaTrocaPokemon(tk.Toplevel):
         party_frame.pack(pady=20, padx=20, expand=True, fill="both")
 
         for pokemon in equipe_atual:
-            if pokemon is None: # Se o slot estiver vazio, pule para o próximo
+            if pokemon is None:
                 continue
                 
             info_text = f"{pokemon['nome']} (Nv.{pokemon['nivel']})\nHP: {pokemon['hp']} / {pokemon['hp_max']}"
@@ -32,5 +35,9 @@ class TelaTrocaPokemon(tk.Toplevel):
                 btn.config(state="disabled", text=info_text + " - DESMAIADO")
             if pokemon['id_captura'] == id_em_batalha:
                  btn.config(state="disabled", text=info_text + " - EM BATALHA")
-        btn_cancelar = tk.Button(self, text="Cancelar", font=("Arial", 14), command=self.destroy)
-        btn_cancelar.pack(pady=10)
+
+        # --- E A MUDANÇA FINAL ESTÁ AQUI ---
+        # O botão Cancelar só é criado se a troca NÃO for forçada
+        if not is_forced:
+            btn_cancelar = tk.Button(self, text="Cancelar", font=("Arial", 14), command=self.destroy)
+            btn_cancelar.pack(pady=10)

@@ -3,30 +3,64 @@
   "treinadores": [
     {
       "id": 1,
-      "nome": "ew",
+      "nome": "re",
       "equipe": [
         {
-          "id_captura": 1,
-          "pokedex_id": 258,
-          "nome": "Mudkip",
-          "nivel": 13,
-          "hp_max": 76,
-          "hp": 0,
-          "ataque": 91,
-          "xp_atual": 134,
-          "xp_para_upar": 152
+          "id_captura": 4,
+          "pokedex_id": 154,
+          "nome": "Meganium",
+          "nivel": 50,
+          "hp_max": 217,
+          "hp": 217,
+          "ataque": 184,
+          "xp_atual": 1535,
+          "xp_para_upar": 7369
+        },
+        {
+          "id_captura": 5,
+          "pokedex_id": 389,
+          "nome": "Torterra",
+          "nivel": 50,
+          "hp_max": 237,
+          "hp": 237,
+          "ataque": 222,
+          "xp_atual": 12808,
+          "xp_para_upar": 7369
+        },
+        {
+          "id_captura": 6,
+          "pokedex_id": 724,
+          "nome": "Decidueye",
+          "nivel": 47,
+          "hp_max": 207,
+          "hp": 207,
+          "ataque": 215,
+          "xp_atual": 607,
+          "xp_para_upar": 6144
         },
         {
           "id_captura": 2,
-          "pokedex_id": 194,
-          "nome": "Wooper",
-          "nivel": 14,
-          "hp_max": 76,
-          "hp": 0,
-          "ataque": 59,
-          "xp_atual": 0,
-          "xp_para_upar": 187
-        }
+          "pokedex_id": 520,
+          "nome": "Tranquill",
+          "nivel": 48,
+          "hp_max": 134,
+          "hp": 134,
+          "ataque": 125,
+          "xp_atual": 2095,
+          "xp_para_upar": 6536
+        },
+        {
+          "id_captura": 3,
+          "pokedex_id": 131,
+          "nome": "Lapras",
+          "nivel": 48,
+          "hp_max": 252,
+          "hp": 252,
+          "ataque": 166,
+          "xp_atual": 6225,
+          "xp_para_upar": 6536
+        },
+        null
       ],
       "pc": [
         null,
@@ -53,14 +87,24 @@
         null,
         null,
         null,
-        null,
+        {
+          "id_captura": 1,
+          "pokedex_id": 8,
+          "nome": "Wartortle",
+          "nivel": 35,
+          "hp_max": 139,
+          "hp": 139,
+          "ataque": 122,
+          "xp_atual": 629,
+          "xp_para_upar": 2592
+        },
         null,
         null,
         null,
         null,
         null
       ],
-      "ginasios_vencidos": 0
+      "ginasios_vencidos": 2
     }
   ]
 }

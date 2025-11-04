@@ -122,6 +122,7 @@ def executar_acao_batalha(batalha_id: int, acao: schemas.AcaoBatalha):
             if pokemon_em_campo["hp"] <= 0:
                 pokemon_em_campo["hp"] = 0
                 log.append(f"Seu {pokemon_em_campo['nome']} desmaiou!")
+                outros_pokemons_aptos = any(p and p.get("hp", 0) > 0 for p in treinador.get("equipe", []))
                 crud.deletar_batalha(batalha_id, gamestate)
                 batalha['resultado_final'] = "Você foi derrotado..."
 

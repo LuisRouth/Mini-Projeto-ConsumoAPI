@@ -91,8 +91,14 @@ class TelaBatalhaGinasio(tk.Frame):
 
             if pokemon_em_campo['hp'] <= 0:
                 self.btn_fight.config(state="disabled")
+                if hasattr(self, 'btn_run'):
+                    self.btn_run.config(state="disabled")
+                self.btn_pokemon.config(state="normal", relief="raised")
             else:
                 self.btn_fight.config(state="normal")
+                if hasattr(self, 'btn_run'):
+                    self.btn_run.config(state="normal")
+                self.btn_pokemon.config(state="normal")
         
         self.log_text.config(state="normal")
         self.log_text.delete("1.0", "end")

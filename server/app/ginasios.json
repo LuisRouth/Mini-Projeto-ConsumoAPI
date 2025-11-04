@@ -5,19 +5,19 @@
     "insignia": "Insígnia da Rocha",
     "equipe": [
       {
+        "pokedex_id": 340,
+        "nivel": 30
+      },
+      {
+        "pokedex_id": 28,
+        "nivel": 30
+      },
+      {
+        "pokedex_id": 247,
+        "nivel": 30
+      },
+      {
         "pokedex_id": 76,
-        "nivel": 30
-      },
-      {
-        "pokedex_id": 28,
-        "nivel": 30
-      },
-      {
-        "pokedex_id": 246,
-        "nivel": 30
-      },
-      {
-        "pokedex_id": 28,
         "nivel": 30
       }
     ]
@@ -28,12 +28,66 @@
     "insignia": "Insígnia da Cascata",
     "equipe": [
       {
-        "pokedex_id": 1,
-        "nivel": 18
+        "pokedex_id": 9,
+        "nivel": 50
       },
       {
-        "pokedex_id": 16,
-        "nivel": 21
+        "pokedex_id": 160,
+        "nivel": 50
+      },
+      {
+        "pokedex_id": 395,
+        "nivel": 50
+      },
+      {
+        "pokedex_id": 503,
+        "nivel": 50
+      }
+    ]
+  },
+  "3": {
+    "nome_ginasio": "Ginásio de Safron",
+    "lider_nome": "Sabrina",
+    "insignia": "Insígnia do Pântano",
+    "equipe": [
+      {
+        "pokedex_id": 386,
+        "nivel": 80
+      },
+      {
+        "pokedex_id": 491,
+        "nivel": 80
+      },
+      {
+        "pokedex_id": 488,
+        "nivel": 80
+      },
+      {
+        "pokedex_id": 720,
+        "nivel": 80
+      }
+    ]
+  },
+  "4": {
+    "nome_ginasio": "Ginásio de Blackthorn",
+    "lider_nome": "Clair",
+    "insignia": "Insígnia Ascendente",
+    "equipe": [
+      {
+        "pokedex_id": 484,
+        "nivel": 100
+      },
+      {
+        "pokedex_id": 483,
+        "nivel": 100
+      },
+      {
+        "pokedex_id": 487,
+        "nivel": 100
+      },
+      {
+        "pokedex_id": 384,
+        "nivel": 100
       }
     ]
   }
