@@ -1,17 +1,16 @@
 import sys
 import os
-import tkinter as tk
-from tkinter import messagebox
+import customtkinter as ctk  # Use CustomTkinter, não Tkinter
+from ui.popup_padrao import PopupPadrao  # Novo padrão!
 import threading
 import uvicorn
 import requests
 import time
 import json
 
-
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Importa as telas
+# Importa as telas adaptadas CustomTkinter
 from ui.tela_login import TelaLogin
 from ui.tela_escolha import TelaEscolha
 from ui.tela_geral import TelaGeral
@@ -19,7 +18,6 @@ from ui.tela_encontro import TelaEncontro
 from ui.tela_batalha import TelaBatalha
 from ui.tela_pc import TelaPC
 
-# --- MÓDULO API E VARIÁVEIS GLOBAIS ---
 API_URL = "http://127.0.0.1:8000"
 treinador_atual = None
 batalha_atual = None
@@ -28,16 +26,17 @@ class ApiClient:
     def _request(self, method, endpoint, json_data=None):
         try:
             response = requests.request(method, f"{API_URL}{endpoint}", json=json_data)
-            response.raise_for_status() 
+            response.raise_for_status()
             return response.json()
         except requests.exceptions.HTTPError as http_err:
             print(f"ERRO DE HTTP: {http_err} - URL: {http_err.request.url}")
             raise http_err
         except requests.exceptions.RequestException as e:
             print(f"ERRO CRÍTICO DE CONEXÃO: {e}")
-            messagebox.showerror("Erro Crítico de Conexão", f"Não foi possível conectar ao servidor.\n{e}")
+            # Padrão CustomTkinter/PopupPadrao em vez de messagebox
+            PopupPadrao(None, f"Não foi possível conectar ao servidor.\n{e}", titulo="Erro Crítico de Conexão", tipo="erro")
             sys.exit(1)
-            
+           
     def get_pokedex(self):
         return self._request('get', '/pokedex')
 
@@ -126,14 +125,15 @@ class ApiClient:
 api = ApiClient()
 
 # --- CLASSE CONTROLADORA PRINCIPAL ---
-class App(tk.Tk):
+
+class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("Cliente Pokémon")
         self.attributes('-fullscreen', True)
         self.bind('<Escape>', self.fechar_tela_cheia)
-        
-        self.container = tk.Frame(self)
+
+        self.container = ctk.CTkFrame(self)
         self.pokedex_data = api.get_pokedex()
         self.container.pack(side="top", fill="both", expand=True)
         self.container.grid_rowconfigure(0, weight=1)
@@ -145,6 +145,9 @@ class App(tk.Tk):
 
         self.mostrar_frame(TelaLogin)
 
+    def mostrar_aviso_padrao(self, mensagem, tipo="info", titulo="Aviso"):
+        PopupPadrao(self, mensagem, titulo, tipo)
+
     def fechar_tela_cheia(self, event=None):
         self.attributes('-fullscreen', False)
 
@@ -152,18 +155,17 @@ class App(tk.Tk):
         if hasattr(self, 'current_frame'):
             self.current_frame.destroy()
         if args:
-            self.current_frame = Page(self.container, self, args) if args else Page(self.container, self) 
+            self.current_frame = Page(self.container, self, args)
         else:
             self.current_frame = Page(self.container, self)
         self.current_frame.grid(row=0, column=0, sticky="nsew")
-    
+
     def get_treinador_nome(self):
         return treinador_atual['nome'] if treinador_atual else "Convidado"
 
     def handle_criar_treinador(self, nome):
         global treinador_atual
         treinador_atual = api.criar_treinador(nome)
-        
         if treinador_atual:
             self.pokedex_data = api.get_pokedex()
             iniciais = api.buscar_iniciais()
@@ -185,107 +187,71 @@ class App(tk.Tk):
         global treinador_atual
         try:
             pokemon_escolhido = api.escolher_inicial(treinador_atual['id'], pokemon_nome)
-            
             if pokemon_escolhido:
-                 messagebox.showinfo("Sucesso", f"Você e {pokemon_nome} começam uma nova jornada!")
-                 self.mostrar_frame(TelaGeral)
-
+                self.mostrar_aviso_padrao(f"Você e {pokemon_nome} começam uma nova jornada!", tipo="sucesso", titulo="Sucesso")
+                self.mostrar_frame(TelaGeral)
         except requests.exceptions.HTTPError as e:
             erro_msg = e.response.json().get("detail", "Erro ao escolher o Pokémon.")
-            messagebox.showerror("Erro", erro_msg, parent=self.container)
+            self.mostrar_aviso_padrao(erro_msg, tipo="erro", titulo="Erro")
 
-    def get_ginasios(self):
-        return self._request('get', '/ginasio/')
-
-    def desafiar_ginasio(self, ginasio_id, treinador_id):
-        return self._request('post', f'/ginasio/{ginasio_id}/desafiar', json_data={'treinador_id': treinador_id})
-    
     def handle_desafiar_ginasio(self, ginasio_id: str):
         global treinador_atual, batalha_atual
         try:
             resposta_batalha = api.desafiar_ginasio(ginasio_id, treinador_atual['id'])
-            
             if resposta_batalha:
                 batalha_atual = resposta_batalha
                 from ui.tela_batalha_ginasio import TelaBatalhaGinasio
                 self.mostrar_frame(TelaBatalhaGinasio, batalha_atual)
         except requests.exceptions.HTTPError as e:
             erro_msg = e.response.json().get("detail", "Não foi possível iniciar o desafio.")
-            messagebox.showerror("Erro de Desafio", erro_msg)
+            self.mostrar_aviso_padrao(erro_msg, tipo="erro", titulo="Erro de Desafio")
 
     def handle_acao_batalha_ginasio(self, batalha_id, tipo_acao):
         global batalha_atual, treinador_atual
         try:
             resposta_batalha = api.executar_acao_batalha_ginasio(batalha_id, tipo_acao)
             batalha_atual = resposta_batalha
-            
             if hasattr(self.current_frame, 'atualizar_interface'):
                 self.current_frame.atualizar_interface(batalha_atual)
-
-            # SE O RESULTADO FINAL VEIO DA AÇÃO, TERMINA TUDO
             if 'resultado_final' in batalha_atual:
-                messagebox.showinfo("Batalha de Ginásio Terminada", batalha_atual['resultado_final'])
+                self.mostrar_aviso_padrao(batalha_atual['resultado_final'], tipo="info", titulo="Batalha de Ginásio Terminada")
                 treinador_atual = api.get_treinador(treinador_atual['id'])
                 self.mostrar_frame(TelaGeral)
                 return
-
             if batalha_atual.get("estado") == "AGUARDANDO_TROCA":
                 self.handle_mostrar_tela_troca(is_forced=True)
-
         except requests.exceptions.HTTPError as e:
             erro_msg = e.response.json().get("detail", "Ocorreu um erro na batalha.")
-            messagebox.showerror("Erro de Batalha", erro_msg)
+            self.mostrar_aviso_padrao(erro_msg, tipo="erro", titulo="Erro de Batalha")
 
-    def executar_acao_batalha_ginasio(self, batalha_id, tipo_acao):
-        return self._request('post', f'/ginasio/batalha/{batalha_id}/acao', {'tipo': tipo_acao})
-    
-    def get_ginasios_vencidos(self):
-        global treinador_atual
-        if treinador_atual:
-            return treinador_atual.get("ginasios_vencidos", 0)
-        return 0
-    
-    def get_treinador(self, treinador_id):
-        return self._request('get', f'/treinador/{treinador_id}')
-    
-    def get_treinador_pc(self):
-        if treinador_atual:
-            treinador_atual['pc'] = api.get_pc(treinador_atual['id'])
-            return treinador_atual.get('pc', [])
-        return []
-    
     def handle_pc_click(self, clique_info):
         global treinador_atual
         lista_clicada, index_clicado, pokemon_clicado = clique_info
         pc_win = self.pc_window
-
         if not self.pokemon_selecionado_pc:
             if not pokemon_clicado: return
             self.pokemon_selecionado_pc = pokemon_clicado
             self.origem_selecao_pc = (lista_clicada, index_clicado)
             if pc_win and pc_win.winfo_exists():
-                pc_win.feedback_label.config(text=f"Selecionado: {pokemon_clicado['nome']}")
+                pc_win.feedback_label.configure(text=f"Selecionado: {pokemon_clicado['nome']}")
         else:
             pokemon_na_mao = self.pokemon_selecionado_pc
             de_lista, de_index = self.origem_selecao_pc
-            
             try:
                 resultado = api.mover_pokemon(
                     treinador_atual['id'], pokemon_na_mao['id_captura'],
                     de_lista, de_index, lista_clicada, index_clicado
                 )
                 print(resultado.get('mensagem', 'Movimento realizado.'))
-
             except requests.exceptions.HTTPError as e:
                 erro_msg = e.response.json().get("detail", "Erro desconhecido.")
-                messagebox.showerror("Movimento Inválido", erro_msg, parent=pc_win)
-
+                self.mostrar_aviso_padrao(erro_msg, tipo="erro", titulo="Movimento Inválido")
             finally:
                 self.pokemon_selecionado_pc = None
                 self.origem_selecao_pc = None
                 if pc_win and pc_win.winfo_exists():
                     pc_win.redesenhar_widgets()
-                    pc_win.feedback_label.config(text="Pokémon movido! Selecione o próximo.")
+                    pc_win.feedback_label.configure(text="Pokémon movido! Selecione o próximo.")
 
     def handle_procurar_pokemon(self, area_id: str):
         pokemon_encontrado = api.encontrar_pokemon(area_id)
@@ -297,7 +263,6 @@ class App(tk.Tk):
         global batalha_atual, treinador_atual
         try:
             area_atual_id = self.current_frame.area_selecionada_id
-            
             resposta_batalha = api.iniciar_batalha(
                 treinador_atual['id'],
                 pokemon_encontrado['nome'],
@@ -309,72 +274,58 @@ class App(tk.Tk):
                 self.batalha_atual = resposta_batalha
                 treinador_atual['pc'] = api.get_pc(treinador_atual['id'])
                 self.mostrar_frame(TelaBatalha, self.batalha_atual)
-                
         except requests.exceptions.HTTPError as e:
             erro_msg = e.response.json().get("detail", "Não foi possível iniciar a batalha.")
-            messagebox.showerror("Erro", erro_msg)
-        
+            self.mostrar_aviso_padrao(erro_msg, tipo="erro", titulo="Erro")
+
     def handle_mostrar_tela_troca(self, is_forced: bool = False):
         global treinador_atual
-        
         equipe_disponivel = [p for p in self.get_treinador_equipe() if p and p.get('hp', 0) > 0]
-        
         if not equipe_disponivel:
-            messagebox.showinfo("Batalha Perdida", "Você não tem mais Pokémon para lutar. A batalha terminou!")
+            self.mostrar_aviso_padrao("Você não tem mais Pokémon para lutar. A batalha terminou!", tipo="info", titulo="Batalha Perdida")
             treinador_atual = api.get_treinador(treinador_atual['id'])
             self.mostrar_frame(TelaGeral)
             return
-
         from ui.tela_troca_pokemon import TelaTrocaPokemon
         self.troca_window = TelaTrocaPokemon(self, self, is_forced)
 
     def handle_trocar_pokemon(self, id_captura):
         global batalha_atual, treinador_atual
         if not batalha_atual: return
-
         try:
             resposta_batalha = None
-            # Verifica qual endpoint de API usar
             if batalha_atual.get('tipo') == 'GINASIO':
                 resposta_batalha = api.trocar_pokemon_batalha_ginasio(batalha_atual['id'], id_captura)
             else:
                 resposta_batalha = api.trocar_pokemon(batalha_atual['id'], id_captura)
-            
-            # Se o backend respondeu, atualize o estado local
             if resposta_batalha:
                 batalha_atual = resposta_batalha
                 self.batalha_atual = resposta_batalha
-            
-            # Fecha a janela de troca e atualiza a interface da batalha principal
             if self.troca_window and self.troca_window.winfo_exists():
                 self.troca_window.destroy()
             if hasattr(self.current_frame, 'atualizar_interface'):
                 self.current_frame.atualizar_interface(batalha_atual)
             if 'resultado_final' in batalha_atual:
-                messagebox.showinfo("Batalha Encerrada", batalha_atual['resultado_final'])
+                self.mostrar_aviso_padrao(batalha_atual['resultado_final'], tipo="info", titulo="Batalha Encerrada")
                 treinador_atual = api.get_treinador(treinador_atual['id'])
                 self.mostrar_frame(TelaGeral)
-                return  # Encerra a função para evitar qualquer ação posterior
-
+                return
         except requests.exceptions.HTTPError as e:
             erro_msg = e.response.json().get("detail", "Não foi possível trocar o Pokémon.")
-            messagebox.showerror("Erro de Troca", erro_msg)
+            self.mostrar_aviso_padrao(erro_msg, tipo="erro", titulo="Erro de Troca")
 
     def handle_acao_batalha(self, batalha_id, tipo_acao):
         global batalha_atual, treinador_atual
         resposta_batalha = api.executar_acao_batalha(batalha_id, tipo_acao)
-        
         if not resposta_batalha:
-            self.mostrar_aviso("Ocorreu um erro na comunicação com o servidor.")
+            self.mostrar_aviso_padrao("Ocorreu um erro na comunicação com o servidor.", tipo="erro")
             return
-        # --- LÓGICA DE ATUALIZAÇÃO E VERIFICAÇÃO ---
         batalha_atual = resposta_batalha
         treinador_atual['pc'] = api.get_pc(treinador_atual['id'])
-        
         if hasattr(self.current_frame, 'atualizar_interface'):
             self.current_frame.atualizar_interface(batalha_atual)
         if 'resultado_final' in batalha_atual:
-            messagebox.showinfo("Batalha Encerrada", batalha_atual['resultado_final'])
+            self.mostrar_aviso_padrao(batalha_atual['resultado_final'], tipo="info", titulo="Batalha Encerrada")
             self.mostrar_frame(TelaGeral)
 
     def get_treinador_equipe(self):
@@ -385,15 +336,26 @@ class App(tk.Tk):
             return treinador_atual.get('equipe', [])
         return []
 
-    def handle_fechar_pc(self):
-        if isinstance(self.container.winfo_children()[0], TelaGeral):
-             self.mostrar_frame(TelaGeral)
-        else:
-             pass
+    def get_treinador_pc(self):
+        global treinador_atual
+        if treinador_atual:
+            # Assumindo que o PC já foi carregado em 'treinador_atual'
+            return treinador_atual.get('pc', [])
+        return []
 
-    def mover_pokemon(self, treinador_id, id_captura, de_lista, de_index, para_lista, para_index):
-        url = f"/treinador/{treinador_id}/mover-pokemon?id_captura={id_captura}&de_lista={de_lista}&de_index={de_index}&para_lista={para_lista}&para_index={para_index}"
-        return self._request('post', url)
+    # --- CORREÇÃO ADICIONADA AQUI ---
+    # Este método estava faltando e causando o AttributeError
+    def get_ginasios_vencidos(self):
+        global treinador_atual
+        if treinador_atual:
+            # Assume que o backend envia a lista 'ginasios_vencidos'
+            # dentro do objeto do treinador
+            return treinador_atual.get('ginasios_vencidos', [])
+        return []
+    
+    # --- LIMPEZA DE CÓDIGO ---
+    # Removido método 'mover_pokemon' quebrado (já existe no ApiClient)
+    # Removido primeiro 'handle_fechar_pc' duplicado
 
     def handle_fechar_pc(self):
         self.mostrar_frame(TelaGeral)
@@ -403,13 +365,13 @@ class App(tk.Tk):
         if treinador_atual:
             resultado = api.curar_pokemons(treinador_atual['id'])
             if resultado:
-                messagebox.showinfo("Centro Pokémon", resultado['mensagem'])
-
-    def mostrar_aviso(self, mensagem):
-        messagebox.showwarning("Aviso", mensagem)
+                self.mostrar_aviso_padrao(resultado['mensagem'], tipo="info", titulo="Centro Pokémon")
 
     def api_get_areas(self):
         return api.get_areas()
+
+
+########
 
 # --- INICIALIZAÇÃO DA APLICAÇÃO ---
 def start_backend():
@@ -425,29 +387,24 @@ def resetar_gamestate_se_necessario():
     try:
         app_dir = os.path.dirname(os.path.abspath(__file__))
         gamestate_file = os.path.join(app_dir, "server", "app", "gamestate.json")
-        
-        # Estrutura do gamestate limpo
         estado_limpo = {
             "batalhas_ativas": [],
             "treinadores": []
         }
         with open(gamestate_file, "w", encoding="utf-8") as f:
             json.dump(estado_limpo, f, indent=2)
-        
         print("--- [SISTEMA] gamestate.json foi resetado para um novo jogo. ---")
-
     except Exception as e:
+        # Se quiser avisar visual, use PopupPadrao aqui também, se já estiver com janela criada.
         print(f"--- [ERRO] Não foi possível resetar o gamestate.json: {e} ---")
 
 if __name__ == "__main__":
     resetar_gamestate_se_necessario()
-
     backend_thread = threading.Thread(target=start_backend, daemon=True)
     backend_thread.start()
-    
     print("--- [FRONTEND] Esperando o backend ficar pronto... ---")
-    time.sleep(2) 
-
+    time.sleep(2)
     app = App()
     app.mainloop()
 
+#######
