@@ -3,18 +3,29 @@
   "treinadores": [
     {
       "id": 1,
-      "nome": "43",
+      "nome": "ew",
       "equipe": [
         {
           "id_captura": 1,
-          "pokedex_id": 260,
-          "nome": "Swampert",
-          "nivel": 50,
-          "hp_max": 244,
-          "hp": 168,
-          "ataque": 224,
-          "xp_atual": 6172,
-          "xp_para_upar": 7369
+          "pokedex_id": 258,
+          "nome": "Mudkip",
+          "nivel": 13,
+          "hp_max": 76,
+          "hp": 0,
+          "ataque": 91,
+          "xp_atual": 134,
+          "xp_para_upar": 152
+        },
+        {
+          "id_captura": 2,
+          "pokedex_id": 194,
+          "nome": "Wooper",
+          "nivel": 14,
+          "hp_max": 76,
+          "hp": 0,
+          "ataque": 59,
+          "xp_atual": 0,
+          "xp_para_upar": 187
         }
       ],
       "pc": [
@@ -49,7 +60,7 @@
         null,
         null
       ],
-      "ginasios_vencidos": 1
+      "ginasios_vencidos": 0
     }
   ]
 }

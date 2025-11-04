@@ -526,3 +526,43 @@ def processar_acao_batalha_ginasio(batalha_id: int, acao: schemas.AcaoBatalha) -
         return batalha
     
     return {"error": "Ação inválida para batalha de ginásio."}
+
+def processar_troca_pokemon_ginasio(batalha: dict, pokemon_para_trocar: dict) -> dict:
+    gamestate = get_gamestate()
+    batalha["pokemon_em_campo_id_captura"] = pokemon_para_trocar["id_captura"]
+    log = batalha["log_batalha"]
+    log.append(f"Vai, {pokemon_para_trocar['nome']}!")
+
+    # A troca conta como um turno, então o oponente ataca.
+    oponente_lider = batalha["oponente_lider"]
+    pokemon_ativo_idx = oponente_lider["pokemon_ativo_idx"]
+    pokemon_oponente_ativo = oponente_lider["equipe"][pokemon_ativo_idx]
+    
+    # Oponente só ataca se ainda estiver de pé
+    if pokemon_oponente_ativo["hp_atual"] > 0:
+        info_jogador_novo = get_pokemon_from_pokedex_by_id(pokemon_para_trocar["pokedex_id"])
+        info_oponente = get_pokemon_from_pokedex_by_id(pokemon_oponente_ativo["pokedex_id"])
+
+        dano_oponente = int(max(1, (pokemon_oponente_ativo["ataque"] / 4)) * type_logic.calcular_multiplicador(info_oponente['tipagem'][0], info_jogador_novo['tipagem']))
+        pokemon_para_trocar["hp"] -= dano_oponente
+        log.append(f"O {pokemon_oponente_ativo['nome']} do oponente ataca e causa {dano_oponente} de dano!")
+        
+        # Verifica se o Pokémon foi derrotado ao entrar
+        if pokemon_para_trocar["hp"] <= 0:
+            pokemon_para_trocar["hp"] = 0
+            log.append(f"Seu {pokemon_para_trocar['nome']} desmaiou ao entrar em batalha!")
+            
+            # Recarrega os dados do treinador para verificar a equipe atualizada
+            treinador = get_treinador_by_id(batalha["treinador_id"])
+            outros_pokemons_aptos = any(p and p["hp"] > 0 for p in treinador.get("equipe", []))
+            
+            if not outros_pokemons_aptos:
+                log.append("Todos os seus Pokémon foram derrotados. Você perdeu a batalha!")
+                batalha["resultado_final"] = "Você foi derrotado..."
+                deletar_batalha(batalha["id"], gamestate)
+
+    # Salva todas as alterações no estado do jogo
+    atualizar_pokemon_na_equipe(batalha["treinador_id"], pokemon_para_trocar, gamestate)
+    atualizar_batalha(batalha, gamestate)
+    save_gamestate(gamestate)
+    return batalha

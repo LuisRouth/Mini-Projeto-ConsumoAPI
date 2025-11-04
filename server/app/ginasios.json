@@ -5,12 +5,20 @@
     "insignia": "Insígnia da Rocha",
     "equipe": [
       {
-        "pokedex_id": 16,
-        "nivel": 12
+        "pokedex_id": 76,
+        "nivel": 30
       },
       {
-        "pokedex_id": 19,
-        "nivel": 14
+        "pokedex_id": 28,
+        "nivel": 30
+      },
+      {
+        "pokedex_id": 246,
+        "nivel": 30
+      },
+      {
+        "pokedex_id": 28,
+        "nivel": 30
       }
     ]
   },

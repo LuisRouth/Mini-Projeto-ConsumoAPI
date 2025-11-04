@@ -61,6 +61,10 @@ class ApiClient:
     
     def desafiar_ginasio(self, ginasio_id, treinador_id):
         return self._request('post', f'/ginasio/{ginasio_id}/desafiar', json_data={'treinador_id': treinador_id})
+    
+    def trocar_pokemon_batalha_ginasio(self, batalha_id, id_captura):
+        payload = {'id_captura_para_troca': id_captura}
+        return self._request('post', f'/ginasio/batalha/{batalha_id}/trocar', payload)
 
     def executar_acao_batalha_ginasio(self, batalha_id, tipo_acao):
         return self._request('post', f'/ginasio/batalha/{batalha_id}/acao', {'tipo': tipo_acao})
@@ -229,10 +233,6 @@ class App(tk.Tk):
     def executar_acao_batalha_ginasio(self, batalha_id, tipo_acao):
         return self._request('post', f'/ginasio/batalha/{batalha_id}/acao', {'tipo': tipo_acao})
     
-    def trocar_pokemon_batalha_ginasio(self, batalha_id, id_captura):
-        payload = {'id_captura_para_troca': id_captura}
-        return self._request('post', f'/ginasio/batalha/{batalha_id}/trocar', payload)
-    
     def get_ginasios_vencidos(self):
         global treinador_atual
         if treinador_atual:
@@ -321,8 +321,14 @@ class App(tk.Tk):
         if not batalha_atual: return
 
         try:
-            resposta_batalha = api.trocar_pokemon(batalha_atual['id'], id_captura)
+            resposta_batalha = None
+            # --- LÓGICA DE DECISÃO ---
+            if batalha_atual.get('tipo') == 'GINASIO':
+                resposta_batalha = api.trocar_pokemon_batalha_ginasio(batalha_atual['id'], id_captura)
+            else:
+                resposta_batalha = api.trocar_pokemon(batalha_atual['id'], id_captura)
             
+            # O resto da função continua exatamente o mesmo...
             if resposta_batalha:
                 batalha_atual = resposta_batalha
                 self.batalha_atual = resposta_batalha
@@ -334,6 +340,7 @@ class App(tk.Tk):
             
             if 'resultado_final' in batalha_atual:
                 messagebox.showinfo("Batalha Encerrada", batalha_atual['resultado_final'])
+                treinador_atual = api.get_treinador(treinador_atual['id'])
                 self.mostrar_frame(TelaGeral)
                 
         except requests.exceptions.HTTPError as e:
