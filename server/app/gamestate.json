@@ -99,6 +99,7 @@
   "treinadores": [
     {
       "id": 1,
+<<<<<<< Updated upstream
       "nome": "fe",
       "equipe": [
         {
@@ -122,6 +123,20 @@
           "ataque": 54,
           "xp_atual": 4,
           "xp_para_upar": 868
+=======
+      "nome": "df",
+      "equipe": [
+        {
+          "id_captura": 1,
+          "pokedex_id": 4,
+          "nome": "Charmander",
+          "nivel": 12,
+          "hp_max": 62,
+          "hp": 62,
+          "ataque": 70,
+          "xp_atual": 81,
+          "xp_para_upar": 122
+>>>>>>> Stashed changes
         }
       ],
       "pc": [

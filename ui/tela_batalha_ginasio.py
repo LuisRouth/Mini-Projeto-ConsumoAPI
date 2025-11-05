@@ -1,4 +1,10 @@
+<<<<<<< Updated upstream
 # ui/tela_batalha_ginasio.py - CÓDIGO CORRIGIDO E COMPLETO
+=======
+import customtkinter as ctk
+import os  # Importado para imagens
+from PIL import Image  # Importado para imagens
+>>>>>>> Stashed changes
 
 import tkinter as tk
 
@@ -13,6 +19,7 @@ class TelaBatalhaGinasio(tk.Frame):
         self.rowconfigure(0, weight=1)
         self.rowconfigure(1, weight=0)
 
+<<<<<<< Updated upstream
         status_frame = tk.Frame(self, bd=1, relief="sunken")
         status_frame.grid(row=0, column=0, sticky="nsew")
         
@@ -71,6 +78,151 @@ class TelaBatalhaGinasio(tk.Frame):
         self.btn_pokemon.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
         self.atualizar_interface(batalha_info)
         
+=======
+        # --- CORREÇÃO ANTI-TRAVAMENTO: Variáveis de estado ---
+        self._last_bg_width = 0
+        self._last_bg_height = 0
+
+        # --- Frame de Status do topo ---
+        self.status_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.status_frame.place(relx=0, rely=0, relwidth=1, relheight=0.65)
+
+        # --- Bloco de Imagem de Fundo (Ginásio) ---
+        self.pil_bg_image = None
+        try:
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # pasta raiz
+            image_path = os.path.join(base_dir, "imagens", "Ginasio_BackGround.png") 
+            self.pil_bg_image = Image.open(image_path)
+        except Exception as e:
+            print(f"Erro ao carregar imagem Ginasio_BackGround.png: {e}")
+        
+        self.bg_image_label = ctk.CTkLabel(self.status_frame, text="", fg_color="transparent")
+        self.bg_image_label.place(relx=0, rely=0, relwidth=1, relheight=1)
+        
+        if self.pil_bg_image:
+                self.status_frame.bind("<Configure>", self._redesenhar_imagem_fundo)
+        # --- FIM DO BLOCO DE IMAGEM ---
+
+        # Oponente (Superior/direita)
+        op_frame = ctk.CTkFrame(self.status_frame, fg_color="transparent", border_width=1, border_color="#c62828", height=100)
+        op_frame.place(relx=0.68, rely=0.10, relwidth=0.3)
+
+        self.label_oponente_nome = ctk.CTkLabel(op_frame, text="Oponente", font=("Arial", 20, "bold"), text_color="white")
+        self.label_oponente_nome.pack(pady=5, padx=5, expand=True)
+
+        self.label_oponente_hp = ctk.CTkLabel(op_frame, text="HP:", font=("Arial", 16), text_color="#ff5252")
+        self.label_oponente_hp.pack(pady=5, padx=5, expand=True)
+
+        # Jogador (Inferior/esquerda)
+        jogador_frame = ctk.CTkFrame(self.status_frame, fg_color="transparent", border_width=1, border_color="#c62828", height=100)
+        jogador_frame.place(relx=0.02, rely=0.65, relwidth=0.3)
+
+        self.label_jogador_nome = ctk.CTkLabel(jogador_frame, text="Você:", font=("Arial", 20, "bold"), text_color="white")
+        self.label_jogador_nome.pack(pady=2, padx=5)
+
+        self.label_jogador_hp = ctk.CTkLabel(jogador_frame, text="HP:", font=("Arial", 16), text_color="#ff5252")
+        self.label_jogador_hp.pack(pady=2, padx=5)
+        self.label_jogador_xp = ctk.CTkLabel(jogador_frame, text="XP:", font=("Arial", 13), text_color="#b0bec5")
+        self.label_jogador_xp.pack(pady=2, padx=5)
+
+        # --- Menu inferior ---
+        menu_frame = ctk.CTkFrame(self, fg_color="#263238", border_width=0)
+        menu_frame.place(relx=0, rely=0.65, relwidth=1, relheight=0.35)
+
+        menu_frame.grid_columnconfigure(0, weight=6) # 60% para log
+        menu_frame.grid_columnconfigure(1, weight=4) # 40% para botões
+        menu_frame.grid_rowconfigure(0, weight=1)
+
+        # Log da batalha com scrollbar
+        log_container = ctk.CTkFrame(menu_frame, fg_color="#263238")
+        log_container.grid(row=0, column=0, sticky="nsew", padx=(10, 5), pady=10)
+
+        self.log_text = ctk.CTkTextbox(
+            log_container,
+            font=("Arial", 13),
+            fg_color="#263238",
+            text_color="white",
+            state="disabled",
+            border_width=1,
+            border_color="#c62828"
+        )
+        self.log_text.pack(side="left", fill="both", expand=True)
+
+        log_scrollbar = ctk.CTkScrollbar(
+            log_container,
+            orientation="vertical",
+            command=self.log_text.yview,
+            fg_color="#c62828"
+        )
+        log_scrollbar.pack(side="right", fill="y")
+        self.log_text.configure(yscrollcommand=log_scrollbar.set)
+
+        # Botões de ação
+        self.botoes_frame = ctk.CTkFrame(menu_frame, fg_color="#263238")
+        self.botoes_frame.grid(row=0, column=1, sticky="nsew", padx=(5, 10), pady=10)
+        
+        self.botoes_frame.grid_columnconfigure((0, 1), weight=1)
+        self.botoes_frame.grid_rowconfigure((0, 1), weight=1)
+
+        self.btn_fight = ctk.CTkButton(
+            self.botoes_frame,
+            text="LUTAR",
+            font=("Arial", 16, "bold"),
+            fg_color="#c62828",
+            text_color="white",
+            hover_color="#ff5252",
+            command=lambda: self.controller.handle_acao_batalha_ginasio(self.batalha_id, 'atacar')
+        )
+        self.btn_fight.grid(row=0, column=0, padx=7, pady=5) 
+
+        self.btn_run = ctk.CTkButton(
+            self.botoes_frame,
+            text="FUGIR",
+            font=("Arial", 16, "bold"),
+            fg_color="#c62828",
+            text_color="white",
+            hover_color="#ff5252",
+            command=lambda: self.controller.handle_acao_batalha_ginasio(self.batalha_id, 'fugir')
+        )
+        self.btn_run.grid(row=0, column=1, sticky="", padx=7, pady=5)
+
+        self.btn_pokemon = ctk.CTkButton(
+            self.botoes_frame,
+            text="POKÉMON",
+            font=("Arial", 16, "bold"),
+            fg_color="#b71c1c",
+            text_color="white",
+            hover_color="#ff5252",
+            command=self.controller.handle_mostrar_tela_troca
+        )
+        self.btn_pokemon.grid(row=1, column=0, columnspan=2, sticky="", padx=7, pady=5)
+
+        self.atualizar_interface(batalha_info)
+        self.after(50, self._redesenhar_imagem_fundo)
+
+    # --- CORREÇÃO DO LOOP INFINITO (TRAVAMENTO) ---
+    def _redesenhar_imagem_fundo(self, event=None):
+        if not self.pil_bg_image:
+            return
+        
+        width = self.status_frame.winfo_width()
+        height = self.status_frame.winfo_height()
+
+        # Se o tamanho for inválido ou o mesmo de antes, não faça nada
+        if width <= 1 or height <= 1:
+            return
+        if width == self._last_bg_width and height == self._last_bg_height:
+            return
+
+        # Armazena o novo tamanho e só então redesenha
+        self._last_bg_width = width
+        self._last_bg_height = height
+        
+        self.bg_image_resized = ctk.CTkImage(self.pil_bg_image, size=(width, height))
+        self.bg_image_label.configure(image=self.bg_image_resized)
+    # --- FIM DA CORREÇÃO ---
+
+>>>>>>> Stashed changes
     def atualizar_interface(self, batalha_info):
         equipe_treinador = self.controller.get_treinador_equipe()
         pokemon_em_campo = next((p for p in equipe_treinador if p['id_captura'] == batalha_info['pokemon_em_campo_id_captura']), None)
@@ -108,4 +260,8 @@ class TelaBatalhaGinasio(tk.Frame):
         
         if 'resultado_final' in batalha_info:
             for child in self.botoes_frame.winfo_children():
+<<<<<<< Updated upstream
                 child.config(state="disabled")
+=======
+                child.configure(state="disabled")
+>>>>>>> Stashed changes
