@@ -1,5 +1,7 @@
+import threading
 from .popup_padrao import PopupPadrao
 import customtkinter as ctk
+from .utils import carregar_imagem_pokemon
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -9,7 +11,7 @@ class TelaEscolha(ctk.CTkFrame):
         super().__init__(master)
         self.controller = controller
         self.place(relx=0, rely=0, relwidth=1, relheight=1)
-        self.configure(fg_color="#212121") # cinza escuro
+        self.configure(fg_color="#212121")
 
         # --- TÍTULOS NO TOPO ---
         frame_titulos = ctk.CTkFrame(self, fg_color="#212121")
@@ -48,7 +50,7 @@ class TelaEscolha(ctk.CTkFrame):
         # GRID DE POKÉMON
         row = 0
         col = 0
-        COLUNAS = 5
+        COLUNAS = 6
         for pokemon in iniciais:
             card = self.criar_card_pokemon(scrollable_frame, pokemon)
             card.grid(row=row, column=col, padx=(20, 12), pady=15)
@@ -59,6 +61,12 @@ class TelaEscolha(ctk.CTkFrame):
 
     def mostrar_aviso_padrao(self, mensagem, tipo="info", titulo="Aviso"):
         PopupPadrao(self, mensagem, titulo, tipo)
+
+    def _carregar_imagem_em_thread(self, label_imagem, nome_pokemon):
+        imagem_pokemon = carregar_imagem_pokemon(nome_pokemon)
+
+        if imagem_pokemon:
+            label_imagem.configure(image=imagem_pokemon, text="")
 
     def criar_card_pokemon(self, parent, pokemon):
         nome_pokemon = pokemon['nome']
@@ -72,8 +80,7 @@ class TelaEscolha(ctk.CTkFrame):
             fg_color="#263238",
             cursor="hand2"
         )
-
-        placeholder_imagem = ctk.CTkLabel(
+        label_imagem = ctk.CTkLabel(
             card_frame,
             text="🕹️",
             fg_color="#c62828",
@@ -82,22 +89,17 @@ class TelaEscolha(ctk.CTkFrame):
             height=70,
             font=("Arial", 38)
         )
-        placeholder_imagem.pack(padx=10, pady=(10, 5))
-
-        nome_label = ctk.CTkLabel(
-            card_frame,
-            text=nome_pokemon,
-            font=("Arial", 16, "bold"),
-            text_color="white"
+        label_imagem.pack(padx=10, pady=(10, 5))
+        thread = threading.Thread(
+            target=self._carregar_imagem_em_thread,
+            args=(label_imagem, nome_pokemon),
+            daemon=True
         )
+        thread.start()
+        nome_label = ctk.CTkLabel(card_frame, text=nome_pokemon, font=("Arial", 16, "bold"), text_color="white")
         nome_label.pack()
 
-        tipo_label = ctk.CTkLabel(
-            card_frame,
-            text=tipo_texto,
-            font=("Arial", 12, "italic"),
-            text_color="#b0bec5"
-        )
+        tipo_label = ctk.CTkLabel(card_frame, text=tipo_texto, font=("Arial", 12, "italic"), text_color="#b0bec5")
         tipo_label.pack(pady=(0, 10))
 
         def acao_clique(event=None, p_nome=nome_pokemon):
@@ -107,7 +109,7 @@ class TelaEscolha(ctk.CTkFrame):
                 self.mostrar_aviso_padrao(f"Ocorreu um erro ao escolher o Pokémon: {exc}", tipo="erro")
 
         card_frame.bind("<Button-1>", acao_clique)
-        placeholder_imagem.bind("<Button-1>", acao_clique)
+        label_imagem.bind("<Button-1>", acao_clique)
         nome_label.bind("<Button-1>", acao_clique)
         tipo_label.bind("<Button-1>", acao_clique)
         return card_frame

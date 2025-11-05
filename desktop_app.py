@@ -27,6 +27,9 @@ class ApiClient:
         try:
             response = requests.request(method, f"{API_URL}{endpoint}", json=json_data)
             response.raise_for_status()
+            # Respostas DELETE podem não ter corpo JSON
+            if response.status_code == 204: # 204 No Content
+                return {"detail": "Operação bem-sucedida"}
             return response.json()
         except requests.exceptions.HTTPError as http_err:
             print(f"ERRO DE HTTP: {http_err} - URL: {http_err.request.url}")
@@ -122,6 +125,12 @@ class ApiClient:
     def curar_pokemons(self, treinador_id):
         return self._request('post', f'/treinador/{treinador_id}/curar')
 
+    # --- NOVO RECURSO: Adicionado endpoint de exclusão ---
+    def delete_pokemon(self, treinador_id, id_captura):
+        # O backend DEVE implementar este endpoint:
+        # Ex: DELETE /treinador/1/pokemon/5
+        return self._request('delete', f'/treinador/{treinador_id}/pokemon/{id_captura}')
+
 api = ApiClient()
 
 # --- CLASSE CONTROLADORA PRINCIPAL ---
@@ -142,6 +151,7 @@ class App(ctk.CTk):
         self.origem_selecao_pc = None
         self.troca_window = None
         self.batalha_atual = None
+        self.pc_window = None # Garantir que pc_window está definido
 
         self.mostrar_frame(TelaLogin)
 
@@ -253,6 +263,35 @@ class App(ctk.CTk):
                     pc_win.redesenhar_widgets()
                     pc_win.feedback_label.configure(text="Pokémon movido! Selecione o próximo.")
 
+    # --- NOVO RECURSO: Handler para exclusão ---
+    def handle_excluir_pokemon(self, id_captura, nome_pokemon):
+        global treinador_atual
+        pc_win = self.pc_window
+        
+        # AQUI VOCÊ PODE ADICIONAR UM POPUP DE CONFIRMAÇÃO SE QUISER
+        # print(f"Tentando excluir {nome_pokemon} (ID: {id_captura})")
+        
+        try:
+            # Chamar a nova função da API
+            resultado = api.delete_pokemon(treinador_atual['id'], id_captura)
+            self.mostrar_aviso_padrao(f"{nome_pokemon} foi libertado com sucesso.", tipo="sucesso", titulo="Pokémon Libertado")
+        except requests.exceptions.HTTPError as e:
+            # Tenta pegar a mensagem de erro da API
+            try:
+                erro_msg = e.response.json().get("detail", "Erro desconhecido ao excluir.")
+            except:
+                erro_msg = "Erro desconhecido ao excluir."
+            self.mostrar_aviso_padrao(erro_msg, tipo="erro", titulo="Erro")
+        except Exception as e:
+            # Lidar com o fato de que o endpoint pode não existir
+            print(f"Erro ao excluir: {e}")
+            self.mostrar_aviso_padrao(f"Erro ao excluir: {e}\n(Endpoint de exclusão já implementado no servidor?)", tipo="erro")
+        finally:
+            # Redesenhar a tela do PC
+            if pc_win and pc_win.winfo_exists():
+                pc_win.redesenhar_widgets()
+
+
     def handle_procurar_pokemon(self, area_id: str):
         pokemon_encontrado = api.encontrar_pokemon(area_id)
         if pokemon_encontrado:
@@ -336,28 +375,26 @@ class App(ctk.CTk):
             return treinador_atual.get('equipe', [])
         return []
 
+    # --- CORREÇÃO DO BUG DE MOVIMENTAÇÃO ---
     def get_treinador_pc(self):
         global treinador_atual
         if treinador_atual:
-            # Assumindo que o PC já foi carregado em 'treinador_atual'
-            return treinador_atual.get('pc', [])
+            # O bug estava aqui. Agora buscamos dados frescos da API.
+            pc_atualizado = api.get_pc(treinador_atual['id'])
+            treinador_atual['pc'] = pc_atualizado
+            return pc_atualizado
         return []
+    # --- FIM DA CORREÇÃO ---
 
-    # --- CORREÇÃO ADICIONADA AQUI ---
-    # Este método estava faltando e causando o AttributeError
     def get_ginasios_vencidos(self):
         global treinador_atual
         if treinador_atual:
-            # Assume que o backend envia a lista 'ginasios_vencidos'
-            # dentro do objeto do treinador
             return treinador_atual.get('ginasios_vencidos', [])
         return []
-    
-    # --- LIMPEZA DE CÓDIGO ---
-    # Removido método 'mover_pokemon' quebrado (já existe no ApiClient)
-    # Removido primeiro 'handle_fechar_pc' duplicado
 
     def handle_fechar_pc(self):
+        # Quando fechar o PC, atualiza a TelaGeral
+        # para refletir quaisquer mudanças na equipe.
         self.mostrar_frame(TelaGeral)
 
     def handle_curar_pokemon(self):
@@ -365,6 +402,9 @@ class App(ctk.CTk):
         if treinador_atual:
             resultado = api.curar_pokemons(treinador_atual['id'])
             if resultado:
+                # Atualiza a equipe na TelaGeral após curar
+                if hasattr(self, 'current_frame') and isinstance(self.current_frame, TelaGeral):
+                    self.current_frame.desenhar_equipe(self.current_frame.equipe_container)
                 self.mostrar_aviso_padrao(resultado['mensagem'], tipo="info", titulo="Centro Pokémon")
 
     def api_get_areas(self):

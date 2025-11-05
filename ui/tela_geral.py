@@ -1,5 +1,7 @@
 from .popup_padrao import PopupPadrao
 import customtkinter as ctk
+import os  # Necessário para construir o caminho da imagem
+from PIL import Image  # Necessário para carregar a imagem
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -14,7 +16,7 @@ class TelaGeral(ctk.CTkFrame):
         self.area_selecionada_id = "1"
         self.areas_data = self.controller.api_get_areas()
 
-        # Painel esquerdo
+        # --- PAINEL ESQUERDO (Sem alterações) ---
         left_panel = ctk.CTkFrame(self, fg_color="#23272b")
         left_panel.place(relx=0, rely=0, relwidth=0.38, relheight=1)
 
@@ -35,7 +37,7 @@ class TelaGeral(ctk.CTkFrame):
                                         command=lambda: self.mostrar_aviso_padrao("Salvamento ainda não implementado!", tipo="info"))
         self.btn_salvar.pack(side="left", padx=5, expand=True, fill="x")
 
-        # Equipe Pokémon – 6 cards fixos 2x3 centralizados
+        # Equipe Pokémon
         equipe_container = ctk.CTkFrame(left_panel, fg_color="#263238")
         equipe_container.pack(fill="x", padx=10, pady=10)
         ctk.CTkLabel(equipe_container, text="Sua Equipe", font=("Arial", 16, "bold"), text_color="white", anchor="w").pack(pady=4, anchor="w")
@@ -43,11 +45,16 @@ class TelaGeral(ctk.CTkFrame):
         self.frame_grid = None
         self.desenhar_equipe(equipe_container)
 
-        # Painel de ações/ginasios/áreas
-        acoes_frame = ctk.CTkFrame(left_panel, fg_color="#23272b")
+        # Painel de ações (Scrollable)
+        acoes_frame = ctk.CTkScrollableFrame(
+            left_panel, 
+            fg_color="#23272b",
+            label_text="Ações",
+            label_font=("Arial", 16, "bold"),
+            label_text_color="#c62828"
+        )
         acoes_frame.pack(fill="both", pady=18, padx=10, expand=True)
-        ctk.CTkLabel(acoes_frame, text="Ações", font=("Arial", 16, "bold"), text_color="#c62828").pack(anchor="w", pady=(0, 8))
-
+        
         ginasios_vencidos = self.controller.get_ginasios_vencidos()
         for area_id, area_info in self.areas_data.items():
             area_container = ctk.CTkFrame(acoes_frame, fg_color="#262626", border_color="#c62828", border_width=2)
@@ -78,19 +85,72 @@ class TelaGeral(ctk.CTkFrame):
                 btn_explorar.configure(state="disabled")
                 area_container.configure(border_color="gray")
 
-        # Painel Direito – Eventos da área
-        self.eventos_frame = ctk.CTkFrame(self, fg_color="#263238", border_width=2, border_color="#c62828")
+        # --- PAINEL DIREITO (MODIFICADO) ---
+        
+        self.eventos_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=2, border_color="#c62828")
         self.eventos_frame.place(relx=0.38, rely=0, relwidth=0.62, relheight=1)
 
-        ctk.CTkLabel(self.eventos_frame, text="Eventos da Área", font=("Arial", 20, "bold"), text_color="white").pack(pady=10)
+        # --- MODIFICAÇÃO: Carregar todas as imagens de fundo ---
+        self.nomes_imagens_fundo = {
+            "1": "Rota_Inicial.png",
+            "2": "Floresta_Sombria.png",
+            "3": "Montanha_Rochosa.png",
+            "4": "Caverna_Misteriosa.png" # Supondo que o ID da Caverna é "4"
+        }
+        self.imagens_fundo_pil = {}
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # pasta raiz
+        
+        for area_id, nome_arquivo in self.nomes_imagens_fundo.items():
+            try:
+                image_path = os.path.join(base_dir, "imagens", nome_arquivo)
+                self.imagens_fundo_pil[area_id] = Image.open(image_path)
+            except Exception as e:
+                print(f"Erro ao carregar imagem {nome_arquivo}: {e}")
+                self.imagens_fundo_pil[area_id] = None # Fallback
+
+        # Define a imagem de fundo inicial
+        self.pil_bg_image_selecionada = self.imagens_fundo_pil.get(self.area_selecionada_id)
+        # --- FIM DA MODIFICAÇÃO ---
+
+        self.bg_image_label = ctk.CTkLabel(self.eventos_frame, text="", fg_color="transparent")
+        self.bg_image_label.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+        # Bind (ligação) para a função de redimensionamento
+        if self.pil_bg_image_selecionada:
+             self.eventos_frame.bind("<Configure>", self._redesenhar_imagem_fundo)
+        
+        ctk.CTkLabel(self.eventos_frame, text="Eventos da Área", font=("Arial", 20, "bold"), text_color="white", fg_color="transparent").place(relx=0.5, rely=0.05, anchor="center")
+
         self.log_text_widget = ctk.CTkTextbox(self.eventos_frame, font=("Arial", 14),
                                               fg_color="#212121", text_color="white",
-                                              border_color="#c62828", border_width=2, height=80)
-        self.log_text_widget.pack(pady=18, padx=32, fill="x")
-        self.botoes_acao_frame = ctk.CTkFrame(self.eventos_frame, fg_color="#212121")
-        self.botoes_acao_frame.pack(side="bottom", pady=12)
+                                              border_color="#c62828", border_width=2)
+        
+        self.log_text_widget.place(relx=0.05, rely=0.15, relwidth=0.9, relheight=0.25) 
+
+        self.botoes_acao_frame = ctk.CTkFrame(self.eventos_frame, fg_color="transparent")
+        self.botoes_acao_frame.place(relx=0.5, rely=0.45, anchor="n") 
 
         self.mostrar_acoes_padrao(self.area_selecionada_id)
+        # Garantir que a imagem inicial seja desenhada corretamente
+        self.after(100, self._redesenhar_imagem_fundo) 
+
+    # --- FUNÇÃO DE REDIMENSIONAMENTO MODIFICADA ---
+    def _redesenhar_imagem_fundo(self, event=None):
+        """Pega a imagem de fundo 'selecionada' e a redimensiona para o frame."""
+        if not self.pil_bg_image_selecionada:
+            return
+        
+        width = self.eventos_frame.winfo_width()
+        height = self.eventos_frame.winfo_height()
+
+        # Evita erro se o frame ainda não tiver tamanho (width=1)
+        if width <= 1 or height <= 1:
+            return
+        
+        self.bg_image_resized = ctk.CTkImage(self.pil_bg_image_selecionada, size=(width, height))
+        self.bg_image_label.configure(image=self.bg_image_resized)
+
+    # --- Funções restantes ---
 
     def mostrar_aviso_padrao(self, mensagem, tipo="info", titulo="Aviso"):
         PopupPadrao(self, mensagem, titulo, tipo)
@@ -194,6 +254,14 @@ class TelaGeral(ctk.CTkFrame):
 
     def mostrar_acoes_padrao(self, area_id):
         self.area_selecionada_id = area_id
+
+        # --- MODIFICAÇÃO: Trocar a imagem de fundo ---
+        nova_imagem = self.imagens_fundo_pil.get(area_id)
+        if nova_imagem:
+            self.pil_bg_image_selecionada = nova_imagem
+            self._redesenhar_imagem_fundo() # Força o redesenho
+        # --- FIM DA MODIFICAÇÃO ---
+        
         self.atualizar_info_area(area_id)
         self.limpar_botoes_acoes()
         ctk.CTkButton(

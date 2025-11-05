@@ -134,3 +134,18 @@ def get_equipe_do_treinador(treinador_id: int):
     if not treinador:
         raise HTTPException(status_code=404, detail="Treinador não encontrado")
     return treinador.get("equipe", [])
+
+# --- NOVO ENDPOINT DE EXCLUSÃO ADICIONADO AQUI ---
+
+@router.delete("/{treinador_id}/pokemon/{id_captura}", status_code=200)
+def deletar_pokemon(treinador_id: int, id_captura: int):
+    """
+    Liberta (exclui) um Pokémon do treinador, seja da equipe ou do PC.
+    """
+    resultado = crud.deletar_pokemon_do_treinador(treinador_id, id_captura)
+    if "error" in resultado:
+        # Se o Pokémon não for encontrado ou for o último da equipe, retorna um erro
+        raise HTTPException(status_code=400, detail=resultado["error"])
+    
+    # Retorna uma mensagem de sucesso
+    return resultado
