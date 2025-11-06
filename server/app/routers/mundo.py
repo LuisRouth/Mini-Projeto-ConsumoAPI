@@ -29,14 +29,14 @@ AREAS_DATA = {
         "level_range": (50, 80),
         "allowed_rarities": ["Raro", "Muito Raro", "Mítico"],
         "encounter_chance": {"Raro": 600, "Muito Raro": 300, "Mítico": 30},
-        "xp_multiplier": 4.0
+        "xp_multiplier": 6.0
     },
     "4": {
         "nome": "Caverna Misteriosa",
         "level_range": (80, 100),
         "allowed_rarities": ["Muito Raro", "Mítico", "Lendário"],
         "encounter_chance": {"Muito Raro": 400, "Mítico": 300, "Lendário": 70},
-        "xp_multiplier": 8.0
+        "xp_multiplier": 12.0
     }
 }
 
