@@ -17,7 +17,7 @@ class TelaGeral(ctk.CTkFrame):
         self.area_selecionada_id = "1"
         self.areas_data = self.controller.api_get_areas()
 
-        # --- PAINEL ESQUERDO (Sem alterações) ---
+        # --- PAINEL ESQUERDO ---
         left_panel = ctk.CTkFrame(self, fg_color="#23272b")
         left_panel.place(relx=0, rely=0, relwidth=0.38, relheight=1)
 
@@ -87,7 +87,7 @@ class TelaGeral(ctk.CTkFrame):
                 btn_explorar.configure(state="disabled")
                 area_container.configure(border_color="gray")
 
-        # --- PAINEL DIREITO (MODIFICADO) ---
+        # --- PAINEL DIREITO ---
         
         self.eventos_frame = ctk.CTkFrame(self, fg_color="transparent", border_width=2, border_color="#c62828")
         self.eventos_frame.place(relx=0.38, rely=0, relwidth=0.62, relheight=1)
@@ -99,8 +99,6 @@ class TelaGeral(ctk.CTkFrame):
 
         self.bg_image_label = ctk.CTkLabel(self.eventos_frame, text="", fg_color="transparent")
         self.bg_image_label.place(relx=0, rely=0, relwidth=1, relheight=1)
-
-        # Bind (ligação) para a função de redimensionamento
         if self.pil_bg_image_selecionada:
              self.eventos_frame.bind("<Configure>", self._redesenhar_imagem_fundo)
         
@@ -116,7 +114,6 @@ class TelaGeral(ctk.CTkFrame):
         self.botoes_acao_frame.place(relx=0.5, rely=0.45, anchor="n") 
 
         self.mostrar_acoes_padrao(self.area_selecionada_id)
-        # Garantir que a imagem inicial seja desenhada corretamente
         self.after(100, self._redesenhar_imagem_fundo) 
 
     def _worker_carregar_imagens(self):
@@ -158,8 +155,6 @@ class TelaGeral(ctk.CTkFrame):
         
         self.bg_image_resized = ctk.CTkImage(self.pil_bg_image_selecionada, size=(width, height))
         self.bg_image_label.configure(image=self.bg_image_resized)
-
-    # --- Funções restantes ---
 
     def mostrar_aviso_padrao(self, mensagem, tipo="info", titulo="Aviso"):
         PopupPadrao(self, mensagem, titulo, tipo)
@@ -260,14 +255,10 @@ class TelaGeral(ctk.CTkFrame):
 
     def mostrar_acoes_padrao(self, area_id):
         self.area_selecionada_id = area_id
-
-        # --- MODIFICAÇÃO: Trocar a imagem de fundo ---
         nova_imagem = self.imagens_fundo_pil.get(area_id)
         if nova_imagem:
             self.pil_bg_image_selecionada = nova_imagem
-            self._redesenhar_imagem_fundo() # Força o redesenho
-        # --- FIM DA MODIFICAÇÃO ---
-        
+            self._redesenhar_imagem_fundo()
         self.atualizar_info_area(area_id)
         self.limpar_botoes_acoes()
         ctk.CTkButton(

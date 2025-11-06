@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
 ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("dark-blue")  # We'll use custom colors directly on widgets
+ctk.set_default_color_theme("dark-blue")
 
 class TelaBatalha(ctk.CTkFrame):
     def __init__(self, master, controller, batalha_info):
@@ -9,7 +9,7 @@ class TelaBatalha(ctk.CTkFrame):
         self.controller = controller
         self.batalha_id = batalha_info['id']
         self.place(relx=0, rely=0, relwidth=1, relheight=1)
-        self.configure(fg_color="#212121")  # cinza escuro inteiro
+        self.configure(fg_color="#212121")
 
         # --- Frame de Status do topo ---
         status_frame = ctk.CTkFrame(self, fg_color="#23272b", border_width=0)
@@ -31,7 +31,7 @@ class TelaBatalha(ctk.CTkFrame):
             op_frame,
             text="HP:",
             font=("Arial", 16),
-            text_color="#ff5252"  # destaque vermelho
+            text_color="#ff5252"
         )
         self.label_oponente_hp.pack()
 

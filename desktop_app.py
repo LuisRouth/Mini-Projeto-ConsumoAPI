@@ -7,10 +7,10 @@ import uvicorn
 import requests
 import time
 import json
+import multiprocessing
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Importa as telas adaptadas CustomTkinter
 from ui.tela_login import TelaLogin
 from ui.tela_escolha import TelaEscolha
 from ui.tela_geral import TelaGeral
@@ -21,6 +21,7 @@ from ui.tela_pc import TelaPC
 API_URL = "http://127.0.0.1:8000"
 treinador_atual = None
 batalha_atual = None
+server_process = None
 
 class ApiClient:
     def _request(self, method, endpoint, json_data=None):
@@ -155,6 +156,7 @@ class App(ctk.CTk):
         self.pc_window = None
 
         self.mostrar_frame(TelaLogin)
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def mostrar_aviso_padrao(self, mensagem, tipo="info", titulo="Aviso"):
         PopupPadrao(self, mensagem, titulo, tipo)
@@ -299,13 +301,11 @@ class App(ctk.CTk):
                     pc_win.redesenhar_widgets()
                     pc_win.feedback_label.configure(text="Pokémon movido! Selecione o próximo.")
 
-    # --- Handler para exclusão ---
     def handle_excluir_pokemon(self, id_captura, nome_pokemon):
         global treinador_atual
         pc_win = self.pc_window
         
         try:
-            # Chamar função da API
             resultado = api.delete_pokemon(treinador_atual['id'], id_captura)
             self.mostrar_aviso_padrao(f"{nome_pokemon} foi libertado com sucesso.", tipo="sucesso", titulo="Pokémon Libertado")
         except requests.exceptions.HTTPError as e:
@@ -439,20 +439,42 @@ class App(ctk.CTk):
                 if hasattr(self, 'current_frame') and isinstance(self.current_frame, TelaGeral):
                     self.current_frame.desenhar_equipe()
                 self.mostrar_aviso_padrao(resultado['mensagem'], tipo="info", titulo="Centro Pokémon")
+    
+    def on_closing(self):
+        global server_process
+        print("--- [SISTEMA] Fechando a aplicação... ---")
+        if server_process and server_process.is_alive():
+            print("--- [BACKEND] Encerrando o processo do servidor... ---")
+            server_process.terminate()
+            server_process.join()
+        self.destroy()
 
     def api_get_areas(self):
         return api.get_areas()
 
 # --- INICIALIZAÇÃO DA APLICAÇÃO ---
-def start_backend():
+def run_server():
     try:
-        requests.get(f"{API_URL}/", timeout=1)
-        print("--- [BACKEND] Servidor já estava no ar. ---")
-    except requests.exceptions.ConnectionError:
-        print("--- [BACKEND] Iniciando Servidor da API na porta 8000... ---")
-        uvicorn.run("server.app.main:app", host="127.0.0.1", port=8000, log_level="info")
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+        gamestate_file = os.path.join(app_dir, "server", "app", "gamestate.json")
+        estado_limpo = {
+            "batalhas_ativas": [],
+            "treinadores": []
+        }
+        with open(gamestate_file, "w", encoding="utf-8") as f:
+            json.dump(estado_limpo, f, indent=2)
+        print("--- [SISTEMA] gamestate.json foi resetado para um novo jogo. ---")
+    except Exception as e:
+        print(f"--- [ERRO] Não foi possível resetar o gamestate.json: {e} ---")
 
-# --- FUNÇÃO PARA RESETAR O JOGO ---
+    uvicorn.run("server.app.main:app", host="127.0.0.1", port=8000, log_level="warning")
+
+def start_backend():
+    global server_process
+    print("--- [BACKEND] Iniciando processo do servidor da API... ---")
+    server_process = multiprocessing.Process(target=run_server, daemon=True)
+    server_process.start()
+
 def resetar_gamestate_se_necessario():
     try:
         app_dir = os.path.dirname(os.path.abspath(__file__))
@@ -468,9 +490,8 @@ def resetar_gamestate_se_necessario():
         print(f"--- [ERRO] Não foi possível resetar o gamestate.json: {e} ---")
 
 if __name__ == "__main__":
-    resetar_gamestate_se_necessario()
-    backend_thread = threading.Thread(target=start_backend, daemon=True)
-    backend_thread.start()
+    multiprocessing.freeze_support()
+    start_backend()
     print("--- [FRONTEND] Esperando o backend ficar pronto... ---")
     time.sleep(2)
     app = App()

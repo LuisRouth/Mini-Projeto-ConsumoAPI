@@ -1,6 +1,6 @@
 # Mini Projeto de Jogo Pokémon com API
 
-Este projeto é uma implementação de um RPG simples inspirado em Pokémon, desenvolvido como parte do "Mini-Projeto Consumo de APIs". Ele consiste em um backend (servidor) construído com FastAPI que gerencia toda a lógica do jogo, e um frontend (cliente) com interface gráfica construído com Tkinter que consome essa API.
+Este projeto é uma implementação de um RPG simples inspirado em Pokémon, desenvolvido como parte do "Mini-Projeto Consumo de APIs". Ele consiste em um backend (servidor) construído com FastAPI que gerencia toda a lógica do jogo, e um frontend (cliente) com interface gráfica construído com CustomTkinter que consome essa API.
 
 1.  **Backend (Servidor)**: Uma API robusta construída com **FastAPI** que gerencia toda a lógica do jogo, estado, batalhas e persistência de dados.
 2.  **Frontend (Cliente)**: Uma interface gráfica moderna construída com **CustomTkinter** que consome a API do backend, proporcionando uma experiência de usuário interativa e modularizada em várias telas.

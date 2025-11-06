@@ -18,17 +18,13 @@ class TelaPC(ctk.CTkToplevel):
 
         main_frame = ctk.CTkFrame(self, fg_color="#212121")
         main_frame.pack(fill="both", expand=True)
-
-        # 1. Empacotar o Label no TOPO
         self.feedback_label = ctk.CTkLabel(main_frame, text="Selecione um Pokémon", font=("Arial", 18, "bold"), fg_color="#263238", text_color="white")
         self.feedback_label.pack(pady=20, fill="x", side="top") 
 
-        # 2. Empacotar o Botão "Fechar PC" no FUNDO (primeiro)
         ctk.CTkButton(main_frame, text="Fechar PC", font=("Arial", 13, "bold"),
             fg_color="#c62828", text_color="white", hover_color="#ff5252",
             command=self.fechar).pack(pady=12, side="bottom") 
 
-        # 3. Empacotar a "Equipe" no FUNDO (aparecerá acima do botão)
         equipe_box_frame = ctk.CTkFrame(main_frame, fg_color="#263238", border_color="#c62828", border_width=2, corner_radius=8)
         equipe_box_frame.pack(padx=24, pady=24, fill="x", side="bottom") 
         
@@ -36,8 +32,6 @@ class TelaPC(ctk.CTkToplevel):
         equipe_label.pack(anchor="center", padx=10, pady=5)
         self.equipe_frame = ctk.CTkFrame(equipe_box_frame, fg_color="#263238")
         self.equipe_frame.pack(anchor="center", fill="x", padx=10, pady=8)
-
-        # 4. Mudar o PC para ser um CTkScrollableFrame
         self.pc_frame = ctk.CTkScrollableFrame( 
             main_frame, 
             fg_color="#23272b", 
@@ -58,7 +52,7 @@ class TelaPC(ctk.CTkToplevel):
         for widget in self.equipe_frame.grid_slaves():
             widget.destroy()
 
-        # PC: 24 slots (4x6)
+        # PC: 30 slots
         pc_list = self.controller.get_treinador_pc() 
         self.pc_frame.grid_columnconfigure(tuple(range(6)), weight=1)
         self.pc_frame.grid_rowconfigure(tuple(range(4)), weight=1) 
@@ -76,7 +70,6 @@ class TelaPC(ctk.CTkToplevel):
             slot_widget = self.criar_slot_equipe_detalhado(self.equipe_frame, pokemon, "equipe", i)
             slot_widget.grid(row=0, column=i, padx=10, pady=7, sticky="nsew")
 
-    # --- NOVO RECURSO: Adicionado botão de exclusão ---
     def criar_slot_pc_simples(self, parent, pokemon, lista_nome, index):
         slot_frame = ctk.CTkFrame(parent, fg_color="#23272b", border_color="#c62828", border_width=2, corner_radius=7, width=120, height=70)
         
@@ -92,7 +85,6 @@ class TelaPC(ctk.CTkToplevel):
             widget.bind("<Button-1>", lambda e, ci=clique_info: self.controller.handle_pc_click(ci))
 
         if pokemon:
-            # Adiciona o botão de excluir
             btn_excluir = ctk.CTkButton(
                 slot_frame, 
                 text="X", 
@@ -108,7 +100,6 @@ class TelaPC(ctk.CTkToplevel):
 
         return slot_frame
 
-    # --- NOVO RECURSO: Adicionado botão de exclusão ---
     def criar_slot_equipe_detalhado(self, parent, pokemon, lista_nome, index):
         slot_frame = ctk.CTkFrame(parent, fg_color="#263238", border_color="#c62828", border_width=2, corner_radius=9, width=145, height=70)
         
@@ -127,7 +118,7 @@ class TelaPC(ctk.CTkToplevel):
             xp_label = ctk.CTkLabel(info_frame, text=f"XP: {pokemon.get('xp_atual', 0)} / {pokemon.get('xp_para_upar', 1)}", font=("Arial", 8), text_color="#b0bec5", anchor="w")
             xp_label.pack(fill="x", pady=1)
             
-            # Adiciona o botão de excluir
+            # Botão de excluir
             btn_excluir = ctk.CTkButton(
                 slot_frame, 
                 text="X", 

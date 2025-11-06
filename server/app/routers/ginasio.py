@@ -34,7 +34,6 @@ def acao_batalha_ginasio(batalha_id: int, acao: schemas.AcaoBatalha):
 @router.post("/batalha/{batalha_id}/trocar")
 def trocar_pokemon_batalha_ginasio(batalha_id: int, acao: schemas.AcaoTroca):
     batalha = crud.get_batalha_by_id(batalha_id)
-    # Validações para garantir a segurança da ação
     if not batalha or batalha.get("tipo") != "GINASIO":
         raise HTTPException(status_code=404, detail="Batalha de ginásio não encontrada.")
         
@@ -48,6 +47,5 @@ def trocar_pokemon_batalha_ginasio(batalha_id: int, acao: schemas.AcaoTroca):
     if pokemon_para_trocar["id_captura"] == batalha["pokemon_em_campo_id_captura"]:
         raise HTTPException(status_code=400, detail="Este Pokémon já está em batalha!")
     
-    # Chama a função principal do crud (que criaremos a seguir)
     batalha_atualizada = crud.processar_troca_pokemon_ginasio(batalha, pokemon_para_trocar)
     return batalha_atualizada

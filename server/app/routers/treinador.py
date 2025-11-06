@@ -8,8 +8,6 @@ router = APIRouter(
     tags=["Treinadores"]
 )
 
-# -----------------------------------------------------------------
-
 @router.post("", status_code=201)
 def criar_treinador(treinador_data: schemas.TreinadorCreate):
     novo_treinador = crud.criar_novo_treinador(treinador_data.nome)

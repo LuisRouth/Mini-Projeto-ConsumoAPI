@@ -9,8 +9,6 @@ import shutil
 
 DIRETORIO_CACHE = os.path.join(os.path.dirname(__file__), 'image_cache')
 os.makedirs(DIRETORIO_CACHE, exist_ok=True)
-# ------------------------------
-
 
 def carregar_imagem_pokemon(nome_pokemon, tamanho=(160, 100)):
     nome_formatado = nome_pokemon.lower()

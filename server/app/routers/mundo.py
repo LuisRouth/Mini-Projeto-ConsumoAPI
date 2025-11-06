@@ -40,13 +40,10 @@ AREAS_DATA = {
     }
 }
 
-# --- AQUI ESTÁ O ENDPOINT QUE ESTAVA FALTANDO ---
 @router.get("/areas")
 def get_todas_as_areas():
-    """Retorna as informações básicas de todas as áreas exploráveis."""
     return AREAS_DATA
 
-# --- FUNÇÃO ATUALIZADA PARA USAR AS NOVAS REGRAS ---
 @router.get("/encontrar-pokemon")
 def encontrar_pokemon_selvagem(area_id: str = "1"):
     if area_id not in AREAS_DATA:

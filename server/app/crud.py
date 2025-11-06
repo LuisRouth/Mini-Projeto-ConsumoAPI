@@ -252,7 +252,6 @@ def upar_e_evoluir_pokemon(treinador_id: int, id_captura: int, level_cap: int) -
         
         info_pokedex = nova_forma_info
 
-    # RECALCULAR STATS
     stats_novos = calcular_stats_pokemon(info_pokedex, nivel_novo)
     pokemon_para_upar["hp_max"] = stats_novos["hp"]
     pokemon_para_upar["hp"] = stats_novos["hp"]
@@ -393,7 +392,6 @@ def curar_pokemons_treinador(treinador_id: int):
     return True
 
 def get_ginasio_data_by_id(ginasio_id: str):
-    """Carrega os dados de um ginásio específico a partir do JSON."""
     try:
         with open(GINASIOS_FILE, "r", encoding="utf-8") as f:
             todos_ginasios = json.load(f)
@@ -479,9 +477,6 @@ def processar_acao_batalha_ginasio(batalha_id: int, acao: schemas.AcaoBatalha) -
             pokemon_jogador["hp"] -= dano_oponente
             log.append(f"{pokemon_oponente_ativo['nome']} contra-ataca e causa {dano_oponente} de dano!")
 
-        # --- VERIFICAÇÕES DE FIM DE TURNO ---
-
-        # 1. VERIFICA DERROTA DO JOGADOR (MAIOR PRIORIDADE)
         if pokemon_jogador["hp"] <= 0:
             pokemon_jogador["hp"] = 0
             log.append(f"Seu {pokemon_jogador['nome']} desmaiou!")
@@ -489,7 +484,6 @@ def processar_acao_batalha_ginasio(batalha_id: int, acao: schemas.AcaoBatalha) -
             outros_pokemons_aptos = any(p and p["hp"] > 0 for p in treinador.get("equipe", []))
 
             if outros_pokemons_aptos:
-                # Informa ao frontend que uma troca é necessária
                 batalha["estado"] = "AGUARDANDO_TROCA"
                 log.append("Você precisa trocar de Pokémon!")
             else:
@@ -499,7 +493,6 @@ def processar_acao_batalha_ginasio(batalha_id: int, acao: schemas.AcaoBatalha) -
                 save_gamestate(gamestate)
                 return batalha
 
-        # 2. VERIFICA DERROTA DO OPONENTE (SE O JOGADOR AINDA ESTIVER EM PÉ)
         if pokemon_oponente_ativo["hp_atual"] <= 0:
             pokemon_oponente_ativo["hp_atual"] = 0
             log.append(f"O {pokemon_oponente_ativo['nome']} do Líder {oponente_lider['nome']} foi derrotado!")
@@ -536,25 +529,17 @@ def processar_acao_batalha_ginasio(batalha_id: int, acao: schemas.AcaoBatalha) -
 def processar_troca_pokemon_ginasio(batalha: dict, pokemon_para_trocar: dict) -> dict:
     gamestate = get_gamestate()
     log = batalha["log_batalha"]
-    
-    # Verifica se esta é uma troca "livre" (após um desmaio)
     troca_livre = batalha.get("estado") == "AGUARDANDO_TROCA"
-    
-    # Limpa o estado "AGUARDANDO_TROCA" para que a batalha possa continuar
     if "estado" in batalha:
         del batalha["estado"]
-
-    # Atualiza o Pokémon em campo
     batalha["pokemon_em_campo_id_captura"] = pokemon_para_trocar["id_captura"]
     log.append(f"Vai, {pokemon_para_trocar['nome']}!")
 
-    # O oponente só ataca se NÃO for uma troca livre
     if not troca_livre:
         oponente_lider = batalha["oponente_lider"]
         pokemon_ativo_idx = oponente_lider["pokemon_ativo_idx"]
         pokemon_oponente_ativo = oponente_lider["equipe"][pokemon_ativo_idx]
         
-        # E só ataca se o próprio oponente ainda estiver de pé
         if pokemon_oponente_ativo["hp_atual"] > 0:
             info_jogador_novo = get_pokemon_from_pokedex_by_id(pokemon_para_trocar["pokedex_id"])
             info_oponente = get_pokemon_from_pokedex_by_id(pokemon_oponente_ativo["pokedex_id"])
@@ -563,12 +548,9 @@ def processar_troca_pokemon_ginasio(batalha: dict, pokemon_para_trocar: dict) ->
             pokemon_para_trocar["hp"] -= dano_oponente
             log.append(f"O {pokemon_oponente_ativo['nome']} do oponente ataca e causa {dano_oponente} de dano!")
             
-            # Verifica se o Pokémon foi derrotado ao entrar em campo
             if pokemon_para_trocar["hp"] <= 0:
                 pokemon_para_trocar["hp"] = 0
                 log.append(f"Seu {pokemon_para_trocar['nome']} desmaiou ao entrar em batalha!")
-                
-                # Procura a referência do treinador dentro do gamestate para ver a equipe
                 treinador = next((t for t in gamestate.get("treinadores", []) if t["id"] == batalha["treinador_id"]), None)
                 outros_pokemons_aptos = any(p and p["hp"] > 0 for p in treinador.get("equipe", []))
                 
@@ -577,19 +559,12 @@ def processar_troca_pokemon_ginasio(batalha: dict, pokemon_para_trocar: dict) ->
                     batalha["resultado_final"] = "Você foi derrotado..."
                     deletar_batalha(batalha["id"], gamestate)
 
-    # Salva todas as alterações no estado do jogo
     atualizar_pokemon_na_equipe(batalha["treinador_id"], pokemon_para_trocar, gamestate)
     atualizar_batalha(batalha, gamestate)
     save_gamestate(gamestate)
     return batalha
 
-# --- NOVA FUNÇÃO DE EXCLUSÃO ADICIONADA AQUI ---
-
 def deletar_pokemon_do_treinador(treinador_id: int, id_captura: int) -> dict:
-    """
-    Encontra um Pokémon pelo id_captura (na equipe ou pc) e o remove.
-    Substitui o slot por 'None'.
-    """
     gamestate = get_gamestate()
     treinador = None
     for t in gamestate.get("treinadores", []):
@@ -599,35 +574,27 @@ def deletar_pokemon_do_treinador(treinador_id: int, id_captura: int) -> dict:
     
     if not treinador:
         return {"error": "Treinador não encontrado."}
-
     encontrado = False
-    
-    # 1. Tenta encontrar e remover da EQUIPE
     lista_equipe = treinador.get("equipe", [])
     total_na_equipe = sum(1 for p in lista_equipe if p)
     
     for i, p in enumerate(lista_equipe):
         if p and p["id_captura"] == id_captura:
-            # Regra de negócio: Não permitir excluir o último Pokémon da equipe
             if total_na_equipe <= 1:
                 return {"error": "Você não pode libertar o último Pokémon da sua equipe!"}
-            
-            treinador["equipe"][i] = None # Substitui o slot por None
+            treinador["equipe"][i] = None
             encontrado = True
             break
-            
-    # 2. Se não achou na equipe, tenta encontrar e remover do PC
+
     if not encontrado:
         lista_pc = treinador.get("pc", [])
         for i, p in enumerate(lista_pc):
             if p and p["id_captura"] == id_captura:
-                treinador["pc"][i] = None # Substitui o slot por None
+                treinador["pc"][i] = None
                 encontrado = True
                 break
                 
     if not encontrado:
         return {"error": "Pokémon com este ID de captura não foi encontrado."}
-
-    # 3. Salva o estado do jogo
     save_gamestate(gamestate)
     return {"mensagem": "Pokémon libertado com sucesso."}

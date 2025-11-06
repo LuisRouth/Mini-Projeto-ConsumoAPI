@@ -30,7 +30,7 @@ def iniciar_batalha(info: schemas.BatalhaInfo):
 
 @router.post("/{batalha_id}/acao")
 def executar_acao_batalha(batalha_id: int, acao: schemas.AcaoBatalha):
-    try:  # <- NOSSO DEBUGGER COMEÇA AQUI
+    try:  # DEBUGGER
         gamestate = crud.get_gamestate()
         batalha = next((b for b in gamestate.get("batalhas_ativas", []) if b["id"] == batalha_id), None)
         
@@ -49,8 +49,6 @@ def executar_acao_batalha(batalha_id: int, acao: schemas.AcaoBatalha):
 
         oponente = batalha["oponente"]
         log = batalha["log_batalha"]
-
-        # --- PROCESSAMENTO DAS AÇÕES ---
 
         # AÇÃO: FUGIR
         if acao.tipo == "fugir":
@@ -79,7 +77,6 @@ def executar_acao_batalha(batalha_id: int, acao: schemas.AcaoBatalha):
                 return batalha
             else:
                 log.append("A captura falhou!")
-                # Turno do oponente após falha
                 dano_oponente = max(1, math.floor(oponente["ataque"] / 4) + random.randint(-2, 2))
                 pokemon_em_campo["hp"] -= dano_oponente
                 log.append(f"{oponente['nome']} contra-ataca e causa {dano_oponente} de dano!")
@@ -97,12 +94,10 @@ def executar_acao_batalha(batalha_id: int, acao: schemas.AcaoBatalha):
             atacante_info = crud.get_pokemon_from_pokedex_by_id(pokemon_em_campo['pokedex_id'])
             defensor_info = crud.get_pokemon_from_pokedex_by_id(oponente['pokedex_id'])
             
-            # Turno do Jogador
             dano_jogador = int(max(1, math.floor(pokemon_em_campo["ataque"]/4)) * type_logic.calcular_multiplicador(atacante_info['tipagem'][0], defensor_info['tipagem']))
             oponente["hp_atual"] -= dano_jogador
             log.append(f"{pokemon_em_campo['nome']} ataca e causa {dano_jogador} de dano!")
 
-            # Verificação de Vitória
             if oponente["hp_atual"] <= 0:
                 oponente["hp_atual"] = 0
                 log.append(f"{oponente['nome']} desmaiou! Você venceu!")
@@ -113,12 +108,10 @@ def executar_acao_batalha(batalha_id: int, acao: schemas.AcaoBatalha):
                 crud.save_gamestate(gamestate)
                 return batalha
             
-            # Turno do Oponente
             dano_oponente = int(max(1, math.floor(oponente["ataque"]/4)) * type_logic.calcular_multiplicador(defensor_info['tipagem'][0], atacante_info['tipagem']))
             pokemon_em_campo["hp"] -= dano_oponente
             log.append(f"{oponente['nome']} contra-ataca e causa {dano_oponente} de dano!")
 
-            # Verificação de Derrota
             if pokemon_em_campo["hp"] <= 0:
                 pokemon_em_campo["hp"] = 0
                 log.append(f"Seu {pokemon_em_campo['nome']} desmaiou!")
@@ -126,7 +119,6 @@ def executar_acao_batalha(batalha_id: int, acao: schemas.AcaoBatalha):
                 crud.deletar_batalha(batalha_id, gamestate)
                 batalha['resultado_final'] = "Você foi derrotado..."
 
-            # Batalha Continua
             crud.atualizar_batalha(batalha, gamestate)
             crud.atualizar_pokemon_na_equipe(treinador['id'], pokemon_em_campo, gamestate)
             crud.save_gamestate(gamestate)
@@ -157,11 +149,9 @@ def trocar_pokemon_em_batalha(batalha_id: int, acao: schemas.AcaoTroca):
     if pokemon_para_trocar["id_captura"] == batalha["pokemon_em_campo_id_captura"]:
         raise HTTPException(status_code=400, detail="Este Pokémon já está em batalha!")
 
-    # Atualiza a batalha
     batalha["pokemon_em_campo_id_captura"] = acao.id_captura_para_troca
     batalha["log_batalha"].append(f"{pokemon_em_campo_antigo['nome']}, volte! Vai, {pokemon_para_trocar['nome']}!")
     
-    # Regra do jogo: A troca conta como um turno, então o oponente ataca.
     oponente = batalha["oponente"]
     atacante_info_oponente = crud.get_pokemon_from_pokedex_by_id(oponente['pokedex_id'])
     defensor_info = crud.get_pokemon_from_pokedex_by_id(pokemon_para_trocar['pokedex_id'])

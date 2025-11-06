@@ -3,18 +3,29 @@
   "treinadores": [
     {
       "id": 1,
-      "nome": "w3",
+      "nome": "asd",
       "equipe": [
         {
           "id_captura": 1,
-          "pokedex_id": 259,
-          "nome": "Marshtomp",
-          "nivel": 22,
-          "hp_max": 128,
-          "hp": 128,
-          "ataque": 133,
-          "xp_atual": 667,
-          "xp_para_upar": 675
+          "pokedex_id": 502,
+          "nome": "Dewott",
+          "nivel": 27,
+          "hp_max": 144,
+          "hp": 0,
+          "ataque": 127,
+          "xp_atual": 862,
+          "xp_para_upar": 1219
+        },
+        {
+          "id_captura": 2,
+          "pokedex_id": 130,
+          "nome": "Gyarados",
+          "nivel": 43,
+          "hp_max": 199,
+          "hp": 0,
+          "ataque": 210,
+          "xp_atual": 1389,
+          "xp_para_upar": 4732
         }
       ],
       "pc": [
@@ -49,7 +60,7 @@
         null,
         null
       ],
-      "ginasios_vencidos": 0
+      "ginasios_vencidos": 1
     }
   ]
 }

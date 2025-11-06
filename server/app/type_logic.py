@@ -19,17 +19,9 @@ TYPE_CHART = {
     "Fada":     {"Lutador": 2, "Venenoso": 0.5, "Aço": 0.5, "Fogo": 0.5, "Dragão": 2, "Sombrio": 2}
 }
 def calcular_multiplicador(tipo_ataque: str, tipos_defesa: list[str]) -> float:
-    """
-    Calcula o multiplicador de dano total com base no tipo do ataque
-    e nos tipos do Pokémon defensor (considerando dual-types).
-    """
     multiplicador_total = 1.0
-    
-    # Se o tipo do atacante não tiver interações especiais, retorna 1.0
     if tipo_ataque not in TYPE_CHART:
         return multiplicador_total
-
-    # Itera sobre cada tipo do Pokémon defensor
     for tipo_defesa in tipos_defesa:
         multiplicador_parcial = TYPE_CHART[tipo_ataque].get(tipo_defesa, 1.0)
         multiplicador_total *= multiplicador_parcial
