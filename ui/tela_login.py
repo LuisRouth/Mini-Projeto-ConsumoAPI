@@ -1,23 +1,44 @@
-import tkinter as tk
+from .popup_padrao import PopupPadrao
+import customtkinter as ctk
 
-class TelaLogin(tk.Frame):
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
+
+class TelaLogin(ctk.CTkFrame):
     def __init__(self, master, controller):
         super().__init__(master)
         self.controller = controller
+        self.place(relx=0, rely=0, relwidth=1, relheight=1)
+        self.configure(fg_color="#212121")
 
-        label = tk.Label(self, text="Digite seu nome de Treinador:", font=("Arial", 20))
-        label.pack(pady=20)
+        self.nomevar = ctk.StringVar()
 
-        self.nome_var = tk.StringVar()
-        entry_nome = tk.Entry(self, textvariable=self.nome_var, font=("Arial", 16), width=30)
+        frame = ctk.CTkFrame(self, fg_color="#23272b")
+        frame.place(relx=0.33, rely=0.25, relwidth=0.34, relheight=0.40)
+
+        ctk.CTkLabel(frame, text="Bem-vindo!", font=("Arial", 24, "bold"), text_color="white").pack(pady=(26,8))
+        ctk.CTkLabel(frame, text="Digite seu nome de treinador:", font=("Arial", 16), text_color="white").pack(pady=(4,10))
+
+        entry_nome = ctk.CTkEntry(frame, textvariable=self.nomevar, font=("Arial", 16), width=220)
         entry_nome.pack(pady=10)
-        
-        button_criar = tk.Button(self, text="Iniciar Jornada", font=("Arial", 16), command=self.iniciar_jornada)
-        button_criar.pack(pady=20)
+
+        btn_iniciar = ctk.CTkButton(
+            frame,
+            text="Iniciar Jornada",
+            font=("Arial", 16, "bold"),
+            fg_color="#c62828",
+            text_color="white",
+            hover_color="#ff5252",
+            command=self.iniciar_jornada
+        )
+        btn_iniciar.pack(pady=16)
+
+    def mostrar_aviso(self, mensagem, tipo="info", titulo="Aviso"):
+        PopupPadrao(self, mensagem, titulo=titulo, tipo=tipo)
 
     def iniciar_jornada(self):
-        nome = self.nome_var.get()
+        nome = self.nomevar.get()
         if nome:
             self.controller.handle_criar_treinador(nome)
         else:
-            self.controller.mostrar_aviso("Por favor, digite um nome.")
+            self.mostrar_aviso("Por favor, digite um nome.", tipo="erro")

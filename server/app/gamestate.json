@@ -1,127 +1,20 @@
 {
-  "batalhas_ativas": [
-    {
-      "id": 1,
-      "tipo": "GINASIO",
-      "treinador_id": 1,
-      "ginasio_id": "1",
-      "pokemon_em_campo_id_captura": 1,
-      "oponente_lider": {
-        "nome": "Brock",
-        "equipe": [
-          {
-            "nome": "Whiscash",
-            "nivel": 30,
-            "hp_max": 170,
-            "hp_atual": 0,
-            "ataque": 118,
-            "pokedex_id": 340,
-            "tipagem": [
-              "Água",
-              "Terrestre"
-            ]
-          },
-          {
-            "nome": "Sandslash",
-            "nivel": 30,
-            "hp_max": 132,
-            "hp_atual": 88,
-            "ataque": 143,
-            "pokedex_id": 28,
-            "tipagem": [
-              "Terrestre"
-            ]
-          },
-          {
-            "nome": "Pupitar",
-            "nivel": 30,
-            "hp_max": 161,
-            "hp_atual": 161,
-            "ataque": 159,
-            "pokedex_id": 247,
-            "tipagem": [
-              "Pedra",
-              "Terrestre"
-            ]
-          },
-          {
-            "nome": "Golem",
-            "nivel": 30,
-            "hp_max": 156,
-            "hp_atual": 156,
-            "ataque": 187,
-            "pokedex_id": 76,
-            "tipagem": [
-              "Pedra",
-              "Terrestre"
-            ]
-          }
-        ],
-        "pokemon_ativo_idx": 1
-      },
-      "log_batalha": [
-        "Você desafiou o Líder de Ginásio Brock!",
-        "Brock enviou Whiscash!",
-        "Mudkip usou um ataque e causou 22 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Vai, Wingull!",
-        "O Whiscash do oponente ataca e causa 14 de dano!",
-        "Wingull usou um ataque e causou 11 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Wingull usou um ataque e causou 11 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Wingull usou um ataque e causou 11 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Wingull usou um ataque e causou 11 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Seu Wingull desmaiou!",
-        "Você precisa trocar de Pokémon!",
-        "Vai, Mudkip!",
-        "Mudkip usou um ataque e causou 22 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Mudkip usou um ataque e causou 22 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Mudkip usou um ataque e causou 22 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Mudkip usou um ataque e causou 22 de dano!",
-        "Whiscash contra-ataca e causa 14 de dano!",
-        "Mudkip usou um ataque e causou 22 de dano!",
-        "O Whiscash do Líder Brock foi derrotado!",
-        "Brock enviou Sandslash!",
-        "Mudkip usou um ataque e causou 44 de dano!",
-        "Sandslash contra-ataca e causa 35 de dano!",
-        "Seu Mudkip desmaiou!",
-        "Você precisa trocar de Pokémon!"
-      ],
-      "estado": "AGUARDANDO_TROCA"
-    }
-  ],
+  "batalhas_ativas": [],
   "treinadores": [
     {
       "id": 1,
-      "nome": "fe",
+      "nome": "w3",
       "equipe": [
         {
           "id_captura": 1,
           "pokedex_id": 259,
           "nome": "Marshtomp",
-          "nivel": 23,
-          "hp_max": 130,
-          "hp": 80,
-          "ataque": 135,
-          "xp_atual": 142,
-          "xp_para_upar": 768
-        },
-        {
-          "id_captura": 2,
-          "pokedex_id": 278,
-          "nome": "Wingull",
-          "nivel": 24,
-          "hp_max": 76,
-          "hp": 0,
-          "ataque": 54,
-          "xp_atual": 4,
-          "xp_para_upar": 868
+          "nivel": 22,
+          "hp_max": 128,
+          "hp": 128,
+          "ataque": 133,
+          "xp_atual": 667,
+          "xp_para_upar": 675
         }
       ],
       "pc": [

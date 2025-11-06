@@ -582,3 +582,52 @@ def processar_troca_pokemon_ginasio(batalha: dict, pokemon_para_trocar: dict) ->
     atualizar_batalha(batalha, gamestate)
     save_gamestate(gamestate)
     return batalha
+
+# --- NOVA FUNÇÃO DE EXCLUSÃO ADICIONADA AQUI ---
+
+def deletar_pokemon_do_treinador(treinador_id: int, id_captura: int) -> dict:
+    """
+    Encontra um Pokémon pelo id_captura (na equipe ou pc) e o remove.
+    Substitui o slot por 'None'.
+    """
+    gamestate = get_gamestate()
+    treinador = None
+    for t in gamestate.get("treinadores", []):
+        if t["id"] == treinador_id:
+            treinador = t
+            break
+    
+    if not treinador:
+        return {"error": "Treinador não encontrado."}
+
+    encontrado = False
+    
+    # 1. Tenta encontrar e remover da EQUIPE
+    lista_equipe = treinador.get("equipe", [])
+    total_na_equipe = sum(1 for p in lista_equipe if p)
+    
+    for i, p in enumerate(lista_equipe):
+        if p and p["id_captura"] == id_captura:
+            # Regra de negócio: Não permitir excluir o último Pokémon da equipe
+            if total_na_equipe <= 1:
+                return {"error": "Você não pode libertar o último Pokémon da sua equipe!"}
+            
+            treinador["equipe"][i] = None # Substitui o slot por None
+            encontrado = True
+            break
+            
+    # 2. Se não achou na equipe, tenta encontrar e remover do PC
+    if not encontrado:
+        lista_pc = treinador.get("pc", [])
+        for i, p in enumerate(lista_pc):
+            if p and p["id_captura"] == id_captura:
+                treinador["pc"][i] = None # Substitui o slot por None
+                encontrado = True
+                break
+                
+    if not encontrado:
+        return {"error": "Pokémon com este ID de captura não foi encontrado."}
+
+    # 3. Salva o estado do jogo
+    save_gamestate(gamestate)
+    return {"mensagem": "Pokémon libertado com sucesso."}
